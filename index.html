@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ATH Radar — ¿A cuánto del máximo?</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Unbounded:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #05050a;
+  --surface: #0c0c14;
+  --surface2: #111120;
+  --border: #1a1a2e;
+  --border2: #252540;
+  --text: #f0f0f8;
+  --muted: #50507a;
+  --muted2: #7070a0;
+  --fire: #ff4500;
+  --fire2: #ff8c00;
+  --fire3: #ffd700;
+  --green: #00e5a0;
+  --yellow: #ffe566;
+  --orange: #ff9500;
+  --red: #ff3b5c;
+  --purple: #a855f7;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Space Mono', monospace;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Animated grid background */
+.bg-grid {
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,69,0,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,69,0,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.bg-glow {
+  position: fixed;
+  top: -200px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 800px;
+  height: 400px;
+  background: radial-gradient(ellipse, rgba(255,69,0,0.06) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.wrap {
+  position: relative;
+  z-index: 1;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 24px 80px;
+}
+
+/* ─── HEADER ─── */
+header {
+  padding: 48px 0 40px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 48px;
+}
+
+.logo-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.logo-icon {
+  width: 36px; height: 36px;
+  background: var(--fire);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+}
+
+.logo-text {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--muted2);
+  text-transform: uppercase;
+}
+
+h1 {
+  font-family: 'Unbounded', sans-serif;
+  font-size: clamp(28px, 5vw, 52px);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
+h1 .accent { color: var(--fire); }
+h1 .accent2 { color: var(--fire3); }
+
+.header-sub {
+  margin-top: 16px;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.8;
+  max-width: 520px;
+}
+
+/* status */
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 40px;
+}
+
+.tabs {
+  display: flex;
+  gap: 2px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 3px;
+}
+
+.tab {
+  padding: 8px 18px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+.tab.active { background: var(--fire); color: #fff; }
+.tab:hover:not(.active) { color: var(--text); }
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--muted);
+  flex-shrink: 0;
+}
+.dot.live { background: var(--green); box-shadow: 0 0 6px var(--green); animation: breathe 2s infinite; }
+.dot.loading { background: var(--fire2); animation: pulse 0.8s infinite; }
+.dot.error { background: var(--red); }
+
+@keyframes breathe { 0%,100%{opacity:1} 50%{opacity:0.4} }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+/* ─── NEAR ATH HERO SECTION ─── */
+.near-ath-section {
+  margin-bottom: 56px;
+}
+
+.section-header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.section-title {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.section-badge {
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 3px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.badge-fire {
+  background: rgba(255,69,0,0.15);
+  color: var(--fire);
+  border: 1px solid rgba(255,69,0,0.3);
+}
+
+.badge-count {
+  background: rgba(255,69,0,0.2);
+  color: var(--fire2);
+  border: 1px solid rgba(255,69,0,0.4);
+}
+
+.near-empty {
+  padding: 32px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+  background: var(--surface);
+  border: 1px dashed var(--border2);
+  border-radius: 8px;
+  line-height: 2;
+}
+
+/* Near ATH cards */
+.near-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+.near-card {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 20px;
+  overflow: hidden;
+  opacity: 0;
+  transform: scale(0.96);
+  animation: popIn 0.4s forwards;
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.near-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,69,0,0.06) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.near-card:hover {
+  border-color: rgba(255,69,0,0.5);
+  transform: translateY(-2px);
+}
+
+.near-card.very-close {
+  border-color: rgba(255,140,0,0.5);
+  box-shadow: 0 0 24px rgba(255,69,0,0.1);
+}
+
+.near-card.very-close::before {
+  background: linear-gradient(135deg, rgba(255,100,0,0.12) 0%, transparent 60%);
+}
+
+@keyframes popIn {
+  to { opacity: 1; transform: scale(1); }
+}
+
+.near-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.near-asset {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.near-icon {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.near-icon img { width:100%;height:100%;border-radius:50%; }
+
+.near-name {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+}
+.near-symbol {
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: 2px;
+}
+
+.near-pct {
+  text-align: right;
+}
+
+.near-pct-number {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--fire2);
+  line-height: 1;
+}
+
+.near-pct-number.at-ath { color: var(--fire3); }
+
+.near-pct-label {
+  font-size: 9px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-top: 3px;
+}
+
+/* Micro bar for near-card */
+.near-bar-track {
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+.near-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--fire), var(--fire3));
+  border-radius: 2px;
+  transition: width 1.2s cubic-bezier(0.4,0,0.2,1);
+}
+
+.near-prices {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.near-prices span b {
+  color: var(--muted2);
+}
+
+/* Flame animation for very close */
+.flame-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-size: 14px;
+  animation: flicker 0.6s infinite alternate;
+}
+@keyframes flicker {
+  from { opacity: 0.7; transform: scale(0.95) rotate(-2deg); }
+  to   { opacity: 1;   transform: scale(1.05) rotate(2deg); }
+}
+
+/* Distance pill */
+.distance-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  margin-top: 10px;
+  background: rgba(255,69,0,0.12);
+  color: var(--fire2);
+  border: 1px solid rgba(255,69,0,0.2);
+}
+.distance-pill.ultra {
+  background: rgba(255,215,0,0.15);
+  color: var(--fire3);
+  border-color: rgba(255,215,0,0.3);
+}
+
+/* ─── MAIN TABLE ─── */
+.all-section { }
+
+.table-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.filter-input {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: var(--text);
+  outline: none;
+  width: 200px;
+  transition: border-color 0.2s;
+}
+.filter-input::placeholder { color: var(--muted); }
+.filter-input:focus { border-color: var(--fire); }
+
+.sort-btn {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  cursor: pointer;
+  letter-spacing: 0.06em;
+  transition: all 0.2s;
+  text-transform: uppercase;
+}
+.sort-btn.active { border-color: var(--fire); color: var(--fire); }
+.sort-btn:hover:not(.active) { color: var(--text); border-color: var(--border2); }
+
+.col-headers {
+  display: grid;
+  grid-template-columns: 36px 1fr 200px 110px;
+  gap: 12px;
+  padding: 0 16px 10px;
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--muted);
+  cursor: default;
+}
+
+.table-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 36px 1fr 200px 110px;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  opacity: 0;
+  transform: translateX(-6px);
+  animation: slideIn 0.35s forwards;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.row:hover {
+  background: var(--surface2);
+  border-color: var(--border2);
+}
+
+.row.near-highlight {
+  border-color: rgba(255,69,0,0.25);
+}
+
+@keyframes slideIn { to { opacity:1; transform:translateX(0); } }
+
+.rank { font-size: 11px; color: var(--muted); text-align: center; }
+
+.asset-cell {
+  display: flex; align-items: center; gap: 10px; min-width: 0;
+}
+
+.asset-icon {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.asset-icon img { width:100%;height:100%;border-radius:50%; }
+
+.asset-name {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.asset-sym {
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+  margin-top: 2px;
+}
+
+/* Progress bar cell */
+.bar-cell { display: flex; flex-direction: column; gap: 5px; }
+.bar-track {
+  height: 3px;
+  background: var(--border2);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 1s cubic-bezier(0.4,0,0.2,1);
+}
+.bar-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  color: var(--muted);
+}
+
+/* Pct cell */
+.pct-cell { text-align: right; }
+.pct-num {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1;
+}
+.pct-sub {
+  font-size: 9px;
+  color: var(--muted);
+  margin-top: 3px;
+  letter-spacing: 0.05em;
+}
+
+/* Color system */
+.col-ath    { color: var(--fire3); }
+.col-near   { color: var(--green); }
+.col-mid    { color: var(--yellow); }
+.col-far    { color: var(--orange); }
+.col-deep   { color: var(--red); }
+
+.fill-ath  { background: linear-gradient(90deg, var(--fire), var(--fire3)); }
+.fill-near { background: var(--green); }
+.fill-mid  { background: var(--yellow); }
+.fill-far  { background: var(--orange); }
+.fill-deep { background: var(--red); }
+
+/* Legend */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  font-size: 10px;
+  color: var(--muted);
+}
+.leg-item { display: flex; align-items: center; gap: 6px; }
+.leg-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+/* Skeleton */
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.skel {
+  background: linear-gradient(90deg, var(--border) 25%, var(--border2) 50%, var(--border) 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: 3px;
+}
+
+/* Threshold toggle */
+.threshold-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.threshold-row input[type=range] {
+  accent-color: var(--fire);
+  width: 80px;
+}
+.threshold-val { color: var(--fire2); font-weight: 700; min-width: 30px; }
+
+@media(max-width:620px) {
+  .col-headers, .row { grid-template-columns: 30px 1fr 80px; }
+  .bar-cell { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<div class="bg-glow"></div>
+
+<div class="wrap">
+
+  <header>
+    <div class="logo-row">
+      <div class="logo-icon">🔥</div>
+      <span class="logo-text">ATH Radar</span>
+    </div>
+    <h1>¿A cuánto del<br><span class="accent">máximo</span> <span class="accent2">histórico?</span></h1>
+    <p class="header-sub">Precio actual vs. ATH — detecta qué activos están a punto de romper máximos.</p>
+  </header>
+
+  <div class="top-bar">
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('crypto')">⬡ Cripto</button>
+      <button class="tab" onclick="switchTab('stocks')">◈ Acciones US</button>
+    </div>
+    <div class="status">
+      <div class="dot" id="sdot"></div>
+      <span id="stxt">Cargando...</span>
+    </div>
+  </div>
+
+  <!-- ══ NEAR ATH HERO ══ -->
+  <div class="near-ath-section">
+    <div class="section-header">
+      <span class="section-title">🔥 Cerca de Romper Máximos</span>
+      <span class="section-badge badge-fire">Zona caliente</span>
+      <span class="section-badge badge-count" id="near-count" style="display:none"></span>
+    </div>
+    <div class="threshold-row" style="margin-bottom:16px">
+      <span>Umbral:</span>
+      <input type="range" id="threshold" min="1" max="15" value="5" oninput="updateThreshold(this.value)">
+      <span class="threshold-val" id="tval">5%</span>
+      <span>del ATH</span>
+    </div>
+    <div id="near-grid"><div class="near-empty">Cargando datos...</div></div>
+  </div>
+
+  <!-- ══ FULL TABLE ══ -->
+  <div class="all-section">
+    <div class="section-header">
+      <span class="section-title">Todos los activos</span>
+    </div>
+
+    <div class="table-controls">
+      <input class="filter-input" type="text" placeholder="Buscar..." id="search" oninput="filterRows()">
+      <button class="sort-btn active" id="sort-rank" onclick="sortBy('rank')">Por ranking</button>
+      <button class="sort-btn" id="sort-pct" onclick="sortBy('pct')">Por % ATH</button>
+      <button class="sort-btn" id="sort-dist" onclick="sortBy('dist')">Más cerca ATH</button>
+    </div>
+
+    <div class="col-headers">
+      <div>#</div><div>Activo</div><div>% del máximo histórico</div><div style="text-align:right">Distancia</div>
+    </div>
+    <div class="table-body" id="table-body"></div>
+  </div>
+
+  <div class="legend">
+    <div class="leg-item"><div class="leg-dot" style="background:linear-gradient(90deg,#ff4500,#ffd700)"></div> En máximos / ATH</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#00e5a0"></div> &gt;80% del ATH</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#ffe566"></div> 50–80%</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#ff9500"></div> 30–50%</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#ff3b5c"></div> &lt;30%</div>
+  </div>
+</div>
+
+<script>
+const CRYPTO_IDS = [
+  'bitcoin','ethereum','tether','binancecoin','solana','ripple',
+  'usd-coin','dogecoin','cardano','avalanche-2','polkadot','chainlink',
+  'litecoin','bitcoin-cash','uniswap','stellar','cosmos','monero',
+  'ethereum-classic','filecoin'
+];
+
+const STOCKS = [
+  { symbol:'AAPL',  name:'Apple',        ath:260.09, icon:'🍎' },
+  { symbol:'MSFT',  name:'Microsoft',    ath:468.35, icon:'🪟' },
+  { symbol:'NVDA',  name:'NVIDIA',       ath:153.13, icon:'🟩' },
+  { symbol:'AMZN',  name:'Amazon',       ath:242.52, icon:'📦' },
+  { symbol:'GOOGL', name:'Alphabet',     ath:207.05, icon:'🔍' },
+  { symbol:'META',  name:'Meta',         ath:740.91, icon:'👁️' },
+  { symbol:'TSLA',  name:'Tesla',        ath:479.86, icon:'⚡' },
+  { symbol:'BRK-B', name:'Berkshire',    ath:519.89, icon:'🎩' },
+  { symbol:'JPM',   name:'JPMorgan',     ath:280.25, icon:'🏦' },
+  { symbol:'V',     name:'Visa',         ath:354.79, icon:'💳' },
+  { symbol:'WMT',   name:'Walmart',      ath:105.30, icon:'🛒' },
+  { symbol:'JNJ',   name:'J&J',          ath:186.69, icon:'💊' },
+  { symbol:'XOM',   name:'ExxonMobil',   ath:126.34, icon:'🛢️' },
+  { symbol:'UNH',   name:'UnitedHealth', ath:630.72, icon:'🏥' },
+  { symbol:'MA',    name:'Mastercard',   ath:564.49, icon:'💰' },
+];
+
+let currentTab = 'crypto';
+let allData = [];
+let sortMode = 'rank';
+let threshold = 5;
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach((t,i) => {
+    t.classList.toggle('active', (i===0&&tab==='crypto')||(i===1&&tab==='stocks'));
+  });
+  loadData();
+}
+
+function updateThreshold(v) {
+  threshold = +v;
+  document.getElementById('tval').textContent = v + '%';
+  renderNearATH();
+}
+
+// ── colors ──
+function colorClass(pct) {
+  if (pct >= 95) return 'col-ath';
+  if (pct >= 80) return 'col-near';
+  if (pct >= 50) return 'col-mid';
+  if (pct >= 30) return 'col-far';
+  return 'col-deep';
+}
+function fillClass(pct) {
+  if (pct >= 95) return 'fill-ath';
+  if (pct >= 80) return 'fill-near';
+  if (pct >= 50) return 'fill-mid';
+  if (pct >= 30) return 'fill-far';
+  return 'fill-deep';
+}
+
+function fmtPrice(n) {
+  if (n >= 1000) return '$' + n.toLocaleString('en-US',{maximumFractionDigits:0});
+  if (n >= 1)    return '$' + n.toFixed(2);
+  if (n >= 0.01) return '$' + n.toFixed(4);
+  return '$' + n.toFixed(6);
+}
+
+function setStatus(state, txt) {
+  document.getElementById('sdot').className = 'dot ' + state;
+  document.getElementById('stxt').textContent = txt;
+}
+
+// ── Render Near ATH ──
+function renderNearATH() {
+  const near = allData.filter(d => d.pct >= (100 - threshold) && d.pct <= 105);
+  const cnt = document.getElementById('near-count');
+  const grid = document.getElementById('near-grid');
+
+  if (near.length === 0) {
+    cnt.style.display = 'none';
+    grid.innerHTML = `<div class="near-empty">
+      Ningún activo está a menos del <b style="color:var(--fire)">${threshold}%</b> de su ATH ahora mismo.<br>
+      Sube el umbral para ver más candidatos.
+    </div>`;
+    return;
+  }
+
+  cnt.style.display = '';
+  cnt.textContent = near.length + ' activo' + (near.length>1?'s':'');
+
+  const sorted = [...near].sort((a,b) => b.pct - a.pct);
+
+  grid.innerHTML = sorted.map((d, i) => {
+    const distPct = (100 - d.pct).toFixed(2);
+    const isUltra = d.pct >= 98;
+    const isAt    = d.pct >= 99.5;
+    return `
+      <div class="near-card ${isUltra?'very-close':''}" style="animation-delay:${i*0.06}s">
+        ${isUltra ? '<div class="flame-badge">🔥</div>' : ''}
+        <div class="near-card-top">
+          <div class="near-asset">
+            <div class="near-icon">${d.iconHtml}</div>
+            <div>
+              <div class="near-name">${d.name}</div>
+              <div class="near-symbol">${d.symbol}</div>
+            </div>
+          </div>
+          <div class="near-pct">
+            <div class="near-pct-number ${isAt?'at-ath':''}">${d.pct.toFixed(1)}%</div>
+            <div class="near-pct-label">del ATH</div>
+          </div>
+        </div>
+        <div class="near-bar-track">
+          <div class="near-bar-fill" style="width:0%" data-target="${Math.min(100,d.pct)}"></div>
+        </div>
+        <div class="near-prices">
+          <span>Precio: <b>${d.priceStr}</b></span>
+          <span>ATH: <b>${d.athStr}</b></span>
+        </div>
+        <div class="distance-pill ${isUltra?'ultra':''}">
+          ${isAt ? '🏆 En máximo histórico' : `↑ Faltan ${distPct}% para ATH`}
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  requestAnimationFrame(() => setTimeout(() => {
+    document.querySelectorAll('.near-bar-fill[data-target]').forEach(el => {
+      el.style.width = el.dataset.target + '%';
+    });
+  }, 80));
+}
+
+// ── Render Table ──
+function renderTable(data) {
+  let items = [...data];
+
+  const q = document.getElementById('search').value.toLowerCase();
+  if (q) items = items.filter(d =>
+    d.name.toLowerCase().includes(q) || d.symbol.toLowerCase().includes(q)
+  );
+
+  if (sortMode === 'pct')  items.sort((a,b) => a.pct - b.pct);
+  if (sortMode === 'dist') items.sort((a,b) => b.pct - a.pct);
+
+  const isNear = d => d.pct >= (100 - threshold);
+
+  document.getElementById('table-body').innerHTML = items.map((d, i) => {
+    const pct = Math.min(100, d.pct);
+    const distPct = (100 - d.pct).toFixed(1);
+    const downLabel = d.pct >= 99.5 ? '🏆 ATH' : `-${distPct}%`;
+    return `
+      <div class="row ${isNear(d)?'near-highlight':''}" style="animation-delay:${Math.min(i,30)*0.025}s">
+        <div class="rank">${d.rank}</div>
+        <div class="asset-cell">
+          <div class="asset-icon">${d.iconHtml}</div>
+          <div>
+            <div class="asset-name">${d.name}</div>
+            <div class="asset-sym">${d.symbol}</div>
+          </div>
+        </div>
+        <div class="bar-cell">
+          <div class="bar-track">
+            <div class="bar-fill ${fillClass(pct)}" style="width:0%" data-target="${pct}"></div>
+          </div>
+          <div class="bar-meta">
+            <span>${d.priceStr}</span>
+            <span>ATH ${d.athStr}</span>
+          </div>
+        </div>
+        <div class="pct-cell">
+          <div class="pct-num ${colorClass(pct)}">${pct >= 99.5 ? '≈100' : pct.toFixed(1)}%</div>
+          <div class="pct-sub">${downLabel}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  requestAnimationFrame(() => setTimeout(() => {
+    document.querySelectorAll('#table-body .bar-fill[data-target]').forEach(el => {
+      el.style.width = el.dataset.target + '%';
+    });
+  }, 80));
+}
+
+function filterRows() { renderTable(allData); }
+
+function sortBy(mode) {
+  sortMode = mode;
+  document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('sort-' + mode).classList.add('active');
+  renderTable(allData);
+}
+
+// ── Load crypto ──
+async function loadCrypto() {
+  setStatus('loading', 'Conectando con CoinGecko...');
+  document.getElementById('near-grid').innerHTML = '<div class="near-empty">Cargando...</div>';
+  document.getElementById('table-body').innerHTML = '';
+
+  try {
+    const ids = CRYPTO_IDS.join(',');
+    const url = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${ids}&order=market_cap_desc&per_page=50&page=1&sparkline=false`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(res.status);
+    const raw = await res.json();
+
+    allData = raw.map((c, i) => ({
+      rank: i + 1,
+      name: c.name,
+      symbol: c.symbol.toUpperCase(),
+      pct: c.ath > 0 ? (c.current_price / c.ath) * 100 : 0,
+      priceStr: fmtPrice(c.current_price),
+      athStr: fmtPrice(c.ath),
+      iconHtml: `<img src="${c.image}" alt="${c.name}" onerror="this.style.display='none'">`
+    }));
+
+    renderNearATH();
+    renderTable(allData);
+    const t = new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+    setStatus('live', `En vivo · ${t} · CoinGecko`);
+  } catch(e) {
+    setStatus('error', 'Error de red — reintentando...');
+    document.getElementById('near-grid').innerHTML = `<div class="near-empty">No se pudo cargar. <a href="#" style="color:var(--fire)" onclick="loadData()">Reintentar</a></div>`;
+  }
+}
+
+// ── Load stocks ──
+async function loadStocks() {
+  setStatus('loading', 'Cargando acciones...');
+  document.getElementById('near-grid').innerHTML = '<div class="near-empty">Cargando...</div>';
+  document.getElementById('table-body').innerHTML = '';
+
+  const approxPrices = {
+    'AAPL':227,'MSFT':388,'NVDA':115,'AMZN':210,'GOOGL':175,
+    'META':620,'TSLA':290,'BRK-B':495,'JPM':255,'V':335,
+    'WMT':98,'JNJ':152,'XOM':108,'UNH':490,'MA':530
+  };
+
+  try {
+    const symbols = STOCKS.map(s=>s.symbol).join(',');
+    const yUrl = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbols}`;
+    const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(yUrl)}`;
+    const res = await fetch(proxy);
+    const wrapper = await res.json();
+    const parsed = JSON.parse(wrapper.contents);
+    const quotes = parsed?.quoteResponse?.result || [];
+    quotes.forEach(q => { approxPrices[q.symbol] = q.regularMarketPrice; });
+  } catch(e) { /* use fallback */ }
+
+  allData = STOCKS.map((s, i) => {
+    const price = approxPrices[s.symbol] || s.ath * 0.85;
+    return {
+      rank: i + 1,
+      name: s.name,
+      symbol: s.symbol,
+      pct: (price / s.ath) * 100,
+      priceStr: fmtPrice(price),
+      athStr: fmtPrice(s.ath),
+      iconHtml: s.icon
+    };
+  });
+
+  renderNearATH();
+  renderTable(allData);
+  const t = new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+  setStatus('live', `Actualizado · ${t} · Precios estimados`);
+}
+
+function loadData() {
+  currentTab === 'crypto' ? loadCrypto() : loadStocks();
+}
+
+loadData();
+</script>
+</body>
+</html>
