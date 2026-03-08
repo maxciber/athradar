@@ -598,8 +598,187 @@ h1 .accent2 { color: var(--fire3); }
 }
 .threshold-val { color: var(--fire2); font-weight: 700; min-width: 30px; }
 
+/* ─── ATL RECOVERY ─── */
+.atl-recovery {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 4px;
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+}
+.atl-badge {
+  color: var(--green);
+  font-weight: 700;
+  font-size: 10px;
+}
+.atl-badge.huge { color: var(--fire3); }
+
+/* ATL in near-card */
+.near-atl {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+  font-size: 10px;
+  color: var(--muted);
+}
+.near-atl-val {
+  color: var(--green);
+  font-weight: 700;
+}
+.near-atl-val.huge { color: var(--fire3); }
+
+/* ─── SECTOR FILTERS ─── */
+.sector-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.sector-btn {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 20px;
+  padding: 5px 12px;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: var(--muted2);
+  cursor: pointer;
+  letter-spacing: 0.06em;
+  transition: all 0.18s;
+  white-space: nowrap;
+}
+.sector-btn:hover { border-color: var(--fire); color: var(--text); }
+.sector-btn.active {
+  background: rgba(255,69,0,0.12);
+  border-color: var(--fire);
+  color: var(--fire2);
+}
+.sector-btn.all.active {
+  background: rgba(255,215,0,0.1);
+  border-color: var(--fire3);
+  color: var(--fire3);
+}
+
+/* ─── DISCLAIMER ─── */
+.disclaimer {
+  margin-top: 48px;
+  padding: 20px 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  border-left: 3px solid var(--muted);
+}
+.disclaimer-title {
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--muted2);
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+.disclaimer p {
+  font-size: 10px;
+  color: var(--muted);
+  line-height: 1.8;
+}
+.disclaimer p + p { margin-top: 6px; }
+
+/* ─── EXTENDED SEARCH ─── */
+.search-section {
+  margin-bottom: 48px;
+}
+
+.search-box {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.search-input-big {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s;
+  max-width: 400px;
+}
+.search-input-big::placeholder { color: var(--muted); }
+.search-input-big:focus { border-color: var(--fire); }
+
+.search-btn {
+  background: var(--fire);
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: #fff;
+  cursor: pointer;
+  letter-spacing: 0.06em;
+  transition: opacity 0.2s;
+  white-space: nowrap;
+}
+.search-btn:hover { opacity: 0.85; }
+.search-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.search-results {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.search-result-row {
+  display: grid;
+  grid-template-columns: 36px 1fr 200px 110px;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--surface2);
+  border: 1px solid rgba(255,69,0,0.2);
+  border-radius: 6px;
+  animation: slideIn 0.3s forwards;
+}
+
+.search-hint {
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 8px;
+  padding-left: 4px;
+}
+
+.search-error {
+  font-size: 11px;
+  color: var(--red);
+  margin-top: 8px;
+  padding: 10px 14px;
+  background: rgba(255,59,92,0.08);
+  border: 1px solid rgba(255,59,92,0.2);
+  border-radius: 6px;
+}
+
+.search-loading {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 @media(max-width:620px) {
-  .col-headers, .row { grid-template-columns: 30px 1fr 80px; }
+  .col-headers, .row, .search-result-row { grid-template-columns: 30px 1fr 80px; }
   .bar-cell { display: none; }
 }
 </style>
@@ -630,6 +809,21 @@ h1 .accent2 { color: var(--fire3); }
     </div>
   </div>
 
+  <!-- ══ EXTENDED SEARCH ══ -->
+  <div class="search-section">
+    <div class="section-header">
+      <span class="section-title">🔎 Buscar cualquier activo</span>
+    </div>
+    <div class="search-box">
+      <input class="search-input-big" type="text" id="ext-search"
+        placeholder="Ej: pepe, sui, ARM Holdings, PLTR..."
+        onkeydown="if(event.key==='Enter') searchExtended()">
+      <button class="search-btn" id="ext-btn" onclick="searchExtended()">Buscar</button>
+    </div>
+    <div class="search-hint" id="ext-hint">Busca cualquier cripto o acción que no esté en la lista principal.</div>
+    <div id="ext-results"></div>
+  </div>
+
   <!-- ══ NEAR ATH HERO ══ -->
   <div class="near-ath-section">
     <div class="section-header">
@@ -653,6 +847,9 @@ h1 .accent2 { color: var(--fire3); }
     </div>
 
     <div class="table-controls">
+      <div class="sector-filters" id="sector-filters"></div>
+    </div>
+    <div class="table-controls">
       <input class="filter-input" type="text" placeholder="Buscar..." id="search" oninput="filterRows()">
       <button class="sort-btn active" id="sort-rank" onclick="sortBy('rank')">Por ranking</button>
       <button class="sort-btn" id="sort-pct" onclick="sortBy('pct')">Por % ATH</button>
@@ -672,6 +869,13 @@ h1 .accent2 { color: var(--fire3); }
     <div class="leg-item"><div class="leg-dot" style="background:#ff9500"></div> 30–50%</div>
     <div class="leg-item"><div class="leg-dot" style="background:#ff3b5c"></div> &lt;30%</div>
   </div>
+
+  <div class="disclaimer">
+    <div class="disclaimer-title">⚠ Aviso legal</div>
+    <p>La información mostrada en esta web es meramente orientativa y tiene finalidad exclusivamente informativa. Los datos de criptomonedas provienen de CoinGecko y pueden presentar retrasos o inexactitudes. El ATH mostrado corresponde al precio máximo absoluto registrado, que puede incluir picos puntuales de muy baja liquidez.</p>
+    <p>Para acciones, el dato de referencia es el máximo de las últimas 52 semanas obtenido vía Yahoo Finance, <b>no el máximo histórico absoluto</b>. Los datos de acciones pueden estar retrasados o ser estimados.</p>
+    <p><b>Esta web no constituye asesoramiento financiero, de inversión ni de ningún otro tipo.</b> Cualquier decisión de inversión es responsabilidad exclusiva del usuario. Consulta siempre con un profesional financiero cualificado antes de tomar decisiones de inversión.</p>
+  </div>
 </div>
 
 <script>
@@ -679,26 +883,141 @@ const CRYPTO_IDS = [
   'bitcoin','ethereum','tether','binancecoin','solana','ripple',
   'usd-coin','dogecoin','cardano','avalanche-2','polkadot','chainlink',
   'litecoin','bitcoin-cash','uniswap','stellar','cosmos','monero',
-  'ethereum-classic','filecoin'
+  'ethereum-classic','filecoin','near','vechain','injective-protocol',
+  'aptos','arbitrum','optimism','the-graph','aave','maker','lido-dao',
+  'render-token','fetch-ai','thorchain','kava','flow','mina-protocol',
+  'helium','axie-infinity','decentraland','the-sandbox','immutable-x',
+  'blur','dydx','gmx','curve-dao-token','convex-finance','frax-share',
+  'rocket-pool','stacks','mantle'
 ];
 
 const STOCKS = [
-  { symbol:'AAPL',  name:'Apple',        ath:260.09, icon:'🍎' },
-  { symbol:'MSFT',  name:'Microsoft',    ath:468.35, icon:'🪟' },
-  { symbol:'NVDA',  name:'NVIDIA',       ath:153.13, icon:'🟩' },
-  { symbol:'AMZN',  name:'Amazon',       ath:242.52, icon:'📦' },
-  { symbol:'GOOGL', name:'Alphabet',     ath:207.05, icon:'🔍' },
-  { symbol:'META',  name:'Meta',         ath:740.91, icon:'👁️' },
-  { symbol:'TSLA',  name:'Tesla',        ath:479.86, icon:'⚡' },
-  { symbol:'BRK-B', name:'Berkshire',    ath:519.89, icon:'🎩' },
-  { symbol:'JPM',   name:'JPMorgan',     ath:280.25, icon:'🏦' },
-  { symbol:'V',     name:'Visa',         ath:354.79, icon:'💳' },
-  { symbol:'WMT',   name:'Walmart',      ath:105.30, icon:'🛒' },
-  { symbol:'JNJ',   name:'J&J',          ath:186.69, icon:'💊' },
-  { symbol:'XOM',   name:'ExxonMobil',   ath:126.34, icon:'🛢️' },
-  { symbol:'UNH',   name:'UnitedHealth', ath:630.72, icon:'🏥' },
-  { symbol:'MA',    name:'Mastercard',   ath:564.49, icon:'💰' },
+  { symbol:'AAPL',  name:'Apple',           ath:260.09, icon:'🍎' },
+  { symbol:'MSFT',  name:'Microsoft',       ath:468.35, icon:'🪟' },
+  { symbol:'NVDA',  name:'NVIDIA',          ath:153.13, icon:'🟩' },
+  { symbol:'AMZN',  name:'Amazon',          ath:242.52, icon:'📦' },
+  { symbol:'GOOGL', name:'Alphabet',        ath:207.05, icon:'🔍' },
+  { symbol:'META',  name:'Meta',            ath:740.91, icon:'👁️' },
+  { symbol:'TSLA',  name:'Tesla',           ath:479.86, icon:'⚡' },
+  { symbol:'BRK-B', name:'Berkshire',       ath:519.89, icon:'🎩' },
+  { symbol:'JPM',   name:'JPMorgan',        ath:280.25, icon:'🏦' },
+  { symbol:'V',     name:'Visa',            ath:354.79, icon:'💳' },
+  { symbol:'WMT',   name:'Walmart',         ath:105.30, icon:'🛒' },
+  { symbol:'JNJ',   name:'J&J',             ath:186.69, icon:'💊' },
+  { symbol:'XOM',   name:'ExxonMobil',      ath:126.34, icon:'🛢️' },
+  { symbol:'UNH',   name:'UnitedHealth',    ath:630.72, icon:'🏥' },
+  { symbol:'MA',    name:'Mastercard',      ath:564.49, icon:'💰' },
+  { symbol:'PG',    name:'Procter & Gamble',ath:180.42, icon:'🧴' },
+  { symbol:'HD',    name:'Home Depot',      ath:439.36, icon:'🏠' },
+  { symbol:'COST',  name:'Costco',          ath:1078.23,icon:'🏪' },
+  { symbol:'AVGO',  name:'Broadcom',        ath:251.88, icon:'🔌' },
+  { symbol:'ORCL',  name:'Oracle',          ath:198.31, icon:'🗄️' },
+  { symbol:'ASML',  name:'ASML',            ath:1110.09,icon:'🔬' },
+  { symbol:'AMD',   name:'AMD',             ath:227.30, icon:'🔴' },
+  { symbol:'INTC',  name:'Intel',           ath:68.63,  icon:'🔵' },
+  { symbol:'QCOM',  name:'Qualcomm',        ath:230.63, icon:'📡' },
+  { symbol:'CRM',   name:'Salesforce',      ath:369.00, icon:'☁️' },
+  { symbol:'NFLX',  name:'Netflix',         ath:1064.50,icon:'🎬' },
+  { symbol:'DIS',   name:'Disney',          ath:203.02, icon:'🏰' },
+  { symbol:'PYPL',  name:'PayPal',          ath:310.16, icon:'🅿️' },
+  { symbol:'SBUX',  name:'Starbucks',       ath:126.32, icon:'☕' },
+  { symbol:'PLTR',  name:'Palantir',        ath:125.41, icon:'🛡️' },
 ];
+
+const CRYPTO_SECTORS = {
+  'bitcoin':             'Store of Value',
+  'ethereum':            'L1',
+  'binancecoin':         'Exchange',
+  'solana':              'L1',
+  'ripple':              'Pagos',
+  'dogecoin':            'Meme',
+  'cardano':             'L1',
+  'avalanche-2':         'L1',
+  'polkadot':            'L2 / Interop',
+  'chainlink':           'Infraestructura',
+  'litecoin':            'Store of Value',
+  'bitcoin-cash':        'Store of Value',
+  'uniswap':             'DeFi',
+  'stellar':             'Pagos',
+  'cosmos':              'L2 / Interop',
+  'monero':              'Privacidad',
+  'ethereum-classic':    'L1',
+  'filecoin':            'Infraestructura',
+  'tether':              'Stablecoin',
+  'usd-coin':            'Stablecoin',
+  'near':                'L1',
+  'vechain':             'Infraestructura',
+  'injective-protocol':  'DeFi',
+  'aptos':               'L1',
+  'arbitrum':            'L2 / Interop',
+  'optimism':            'L2 / Interop',
+  'the-graph':           'Infraestructura',
+  'aave':                'DeFi',
+  'maker':               'DeFi',
+  'lido-dao':            'DeFi',
+  'render-token':        'IA / DePIN',
+  'fetch-ai':            'IA / DePIN',
+  'thorchain':           'DeFi',
+  'kava':                'DeFi',
+  'flow':                'L1',
+  'mina-protocol':       'L1',
+  'helium':              'IA / DePIN',
+  'axie-infinity':       'Gaming / NFT',
+  'decentraland':        'Gaming / NFT',
+  'the-sandbox':         'Gaming / NFT',
+  'immutable-x':         'Gaming / NFT',
+  'blur':                'Gaming / NFT',
+  'dydx':                'DeFi',
+  'gmx':                 'DeFi',
+  'curve-dao-token':     'DeFi',
+  'convex-finance':      'DeFi',
+  'frax-share':          'Stablecoin',
+  'rocket-pool':         'DeFi',
+  'stacks':              'L2 / Interop',
+  'mantle':              'L2 / Interop',
+};
+
+const STOCK_SECTORS = {
+  'AAPL':  'Tech',       'MSFT':  'Tech',        'NVDA':  'IA / Semis',
+  'AMZN':  'Tech',       'GOOGL': 'IA / Semis',  'META':  'Tech',
+  'TSLA':  'EV / Tech',  'BRK-B': 'Finanzas',    'JPM':   'Finanzas',
+  'V':     'Finanzas',   'WMT':   'Consumo',      'JNJ':   'Salud',
+  'XOM':   'Energía',    'UNH':   'Salud',        'MA':    'Finanzas',
+  'PG':    'Consumo',    'HD':    'Consumo',       'COST':  'Consumo',
+  'AVGO':  'IA / Semis', 'ORCL':  'Tech',         'ASML':  'IA / Semis',
+  'AMD':   'IA / Semis', 'INTC':  'IA / Semis',   'QCOM':  'IA / Semis',
+  'CRM':   'Tech',       'NFLX':  'Entretenimiento','DIS':  'Entretenimiento',
+  'PYPL':  'Finanzas',   'SBUX':  'Consumo',      'PLTR':  'IA / Semis',
+};
+
+let activeSector = 'all';
+
+function getSectors(tab) {
+  const map = tab === 'crypto' ? CRYPTO_SECTORS : STOCK_SECTORS;
+  const set = new Set(Object.values(map));
+  return ['Todos', ...Array.from(set).sort()];
+}
+
+function renderSectorFilters() {
+  const sectors = getSectors(currentTab);
+  const map = currentTab === 'crypto' ? CRYPTO_SECTORS : STOCK_SECTORS;
+  document.getElementById('sector-filters').innerHTML = sectors.map(s => {
+    const key = s === 'Todos' ? 'all' : s;
+    const isAll = key === 'all';
+    const count = isAll ? allData.length : allData.filter(d => {
+      const id = currentTab === 'crypto' ? d.coinId : d.symbol;
+      return map[id] === s;
+    }).length;
+    return `<button class="sector-btn ${isAll ? 'all' : ''} ${activeSector === key ? 'active' : ''}"
+      onclick="setSector('${key}')">${s} <span style="opacity:0.5">${count}</span></button>`;
+  }).join('');
+}
+
+function setSector(s) {
+  activeSector = s;
+  renderSectorFilters();
+  renderTable(allData);
+}
 
 let currentTab = 'crypto';
 let allData = [];
@@ -707,6 +1026,7 @@ let threshold = 5;
 
 function switchTab(tab) {
   currentTab = tab;
+  activeSector = 'all';
   document.querySelectorAll('.tab').forEach((t,i) => {
     t.classList.toggle('active', (i===0&&tab==='crypto')||(i===1&&tab==='stocks'));
   });
@@ -794,6 +1114,11 @@ function renderNearATH() {
           <span>Precio: <b>${d.priceStr}</b></span>
           <span>ATH: <b>${d.athStr}</b></span>
         </div>
+        ${d.atlPct ? `<div class="near-atl">
+          <span>↑ Desde ATL:</span>
+          <span class="near-atl-val ${d.atlPct > 1000 ? 'huge' : ''}">+${fmtMultiple(d.atlPct)}</span>
+          ${d.atlStr ? `<span style="margin-left:auto;color:var(--muted)">ATL: ${d.atlStr}</span>` : ''}
+        </div>` : ''}
         <div class="distance-pill ${isUltra?'ultra':''}">
           ${isAt ? '🏆 En máximo histórico' : `↑ Faltan ${distPct}% para ATH`}
         </div>
@@ -811,6 +1136,15 @@ function renderNearATH() {
 // ── Render Table ──
 function renderTable(data) {
   let items = [...data];
+
+  // sector filter
+  if (activeSector !== 'all') {
+    const map = currentTab === 'crypto' ? CRYPTO_SECTORS : STOCK_SECTORS;
+    items = items.filter(d => {
+      const id = currentTab === 'crypto' ? d.coinId : d.symbol;
+      return map[id] === activeSector;
+    });
+  }
 
   const q = document.getElementById('search').value.toLowerCase();
   if (q) items = items.filter(d =>
@@ -834,6 +1168,7 @@ function renderTable(data) {
           <div>
             <div class="asset-name">${d.name}</div>
             <div class="asset-sym">${d.symbol}</div>
+            ${d.atlPct ? `<div class="atl-recovery">↑ desde ATL: <span class="atl-badge ${d.atlPct > 1000 ? 'huge' : ''}">+${fmtMultiple(d.atlPct)}</span></div>` : ''}
           </div>
         </div>
         <div class="bar-cell">
@@ -876,23 +1211,26 @@ async function loadCrypto() {
   document.getElementById('table-body').innerHTML = '';
 
   try {
-    const ids = CRYPTO_IDS.join(',');
-    const url = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${ids}&order=market_cap_desc&per_page=50&page=1&sparkline=false`;
+    const url = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50&page=1&sparkline=false`;
     const res = await fetch(url);
     if (!res.ok) throw new Error(res.status);
     const raw = await res.json();
 
     allData = raw.map((c, i) => ({
       rank: i + 1,
+      coinId: c.id,
       name: c.name,
       symbol: c.symbol.toUpperCase(),
       pct: c.ath > 0 ? (c.current_price / c.ath) * 100 : 0,
+      atlPct: c.atl > 0 ? (c.current_price / c.atl) * 100 : null,
       priceStr: fmtPrice(c.current_price),
       athStr: fmtPrice(c.ath),
+      atlStr: c.atl > 0 ? fmtPrice(c.atl) : null,
       iconHtml: `<img src="${c.image}" alt="${c.name}" onerror="this.style.display='none'">`
     }));
 
     renderNearATH();
+    renderSectorFilters();
     renderTable(allData);
     const t = new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
     setStatus('live', `En vivo · ${t} · CoinGecko`);
@@ -911,7 +1249,10 @@ async function loadStocks() {
   const approxPrices = {
     'AAPL':227,'MSFT':388,'NVDA':115,'AMZN':210,'GOOGL':175,
     'META':620,'TSLA':290,'BRK-B':495,'JPM':255,'V':335,
-    'WMT':98,'JNJ':152,'XOM':108,'UNH':490,'MA':530
+    'WMT':98,'JNJ':152,'XOM':108,'UNH':490,'MA':530,
+    'PG':168,'HD':385,'COST':960,'AVGO':185,'ORCL':165,
+    'ASML':720,'AMD':108,'INTC':21,'QCOM':155,'CRM':290,
+    'NFLX':980,'DIS':100,'PYPL':72,'SBUX':88,'PLTR':90,
   };
 
   try {
@@ -939,6 +1280,7 @@ async function loadStocks() {
   });
 
   renderNearATH();
+  renderSectorFilters();
   renderTable(allData);
   const t = new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
   setStatus('live', `Actualizado · ${t} · Precios estimados`);
@@ -946,6 +1288,159 @@ async function loadStocks() {
 
 function loadData() {
   currentTab === 'crypto' ? loadCrypto() : loadStocks();
+}
+
+function fmtMultiple(atlPct) {
+  // atlPct = (currentPrice / atl) * 100
+  // e.g. 500% means 5x from ATL
+  const x = atlPct / 100;
+  if (x >= 1000) return (x/1000).toFixed(1) + ',000x';
+  if (x >= 100)  return Math.round(x) + 'x';
+  if (x >= 10)   return x.toFixed(1) + 'x';
+  return x.toFixed(2) + 'x';
+}
+
+// ── Extended search ──
+function buildResultRow(d, idx) {
+  const pct = Math.min(100, d.pct);
+  const distPct = (100 - d.pct).toFixed(1);
+  const downLabel = d.pct >= 99.5 ? '🏆 ATH' : `-${distPct}%`;
+  return `
+    <div class="search-result-row" style="animation-delay:${idx*0.06}s">
+      <div class="rank">—</div>
+      <div class="asset-cell">
+        <div class="asset-icon">${d.iconHtml}</div>
+        <div>
+          <div class="asset-name">${d.name}</div>
+          <div class="asset-sym">${d.symbol}</div>
+          ${d.atlPct ? `<div class="atl-recovery">↑ desde ATL: <span class="atl-badge ${d.atlPct>1000?'huge':''}">+${fmtMultiple(d.atlPct)}</span></div>` : ''}
+        </div>
+      </div>
+      <div class="bar-cell">
+        <div class="bar-track">
+          <div class="bar-fill ${fillClass(pct)}" style="width:0%" data-target="${pct}"></div>
+        </div>
+        <div class="bar-meta">
+          <span>${d.priceStr}</span>
+          <span>ATH ${d.athStr}</span>
+        </div>
+      </div>
+      <div class="pct-cell">
+        <div class="pct-num ${colorClass(pct)}">${pct >= 99.5 ? '≈100' : pct.toFixed(1)}%</div>
+        <div class="pct-sub">${downLabel}</div>
+      </div>
+    </div>
+  `;
+}
+
+async function searchExtended() {
+  const q = document.getElementById('ext-search').value.trim();
+  if (!q) return;
+  const btn = document.getElementById('ext-btn');
+  const resultsEl = document.getElementById('ext-results');
+  const hintEl = document.getElementById('ext-hint');
+
+  btn.disabled = true;
+  btn.textContent = '...';
+  resultsEl.innerHTML = `<div class="search-loading"><div class="dot loading"></div> Buscando "${q}"...</div>`;
+  hintEl.style.display = 'none';
+
+  try {
+    if (currentTab === 'crypto') {
+      await searchCrypto(q, resultsEl);
+    } else {
+      await searchStock(q, resultsEl);
+    }
+  } catch(e) {
+    resultsEl.innerHTML = `<div class="search-error">Error al buscar. Comprueba tu conexión e inténtalo de nuevo.</div>`;
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Buscar';
+
+  // animate bars
+  requestAnimationFrame(() => setTimeout(() => {
+    resultsEl.querySelectorAll('.bar-fill[data-target]').forEach(el => {
+      el.style.width = el.dataset.target + '%';
+    });
+  }, 80));
+}
+
+async function searchCrypto(q, container) {
+  // Step 1: search for coin id
+  const searchRes = await fetch(`https://api.coingecko.com/api/v3/search?query=${encodeURIComponent(q)}`);
+  const searchData = await searchRes.json();
+  const coins = searchData.coins?.slice(0, 4) || [];
+
+  if (!coins.length) {
+    container.innerHTML = `<div class="search-error">No se encontró ninguna cripto con "${q}".</div>`;
+    return;
+  }
+
+  // Step 2: get market data for those coin ids
+  const ids = coins.map(c => c.id).join(',');
+  const mktRes = await fetch(`https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${ids}&sparkline=false`);
+  const mktData = await mktRes.json();
+
+  if (!mktData.length) {
+    container.innerHTML = `<div class="search-error">No se pudieron cargar datos de mercado.</div>`;
+    return;
+  }
+
+  const rows = mktData.map((c, i) => {
+    const d = {
+      name: c.name,
+      symbol: c.symbol.toUpperCase(),
+      pct: c.ath > 0 ? (c.current_price / c.ath) * 100 : 0,
+      atlPct: c.atl > 0 ? (c.current_price / c.atl) * 100 : null,
+      priceStr: fmtPrice(c.current_price),
+      athStr: fmtPrice(c.ath),
+      iconHtml: `<img src="${c.image}" alt="${c.name}" onerror="this.style.display='none'">`
+    };
+    return buildResultRow(d, i);
+  });
+
+  container.innerHTML = rows.join('');
+}
+
+async function searchStock(q, container) {
+  const yUrl = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${encodeURIComponent(q)}`;
+  const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(yUrl)}`;
+  const res = await fetch(proxy);
+  const wrapper = await res.json();
+  const parsed = JSON.parse(wrapper.contents);
+  const quotes = parsed?.quoteResponse?.result || [];
+
+  if (!quotes.length) {
+    container.innerHTML = `<div class="search-error">No se encontró "${q}". Prueba con el ticker exacto (AAPL, TSLA, PLTR...).</div>`;
+    return;
+  }
+
+  // Yahoo gives us 52wk high but not ATH — we show what we have
+  const rows = quotes.slice(0, 4).map((qt, i) => {
+    const price = qt.regularMarketPrice || 0;
+    const ath52 = qt.fiftyTwoWeekHigh || price;
+    const atl52 = qt.fiftyTwoWeekLow || price;
+    const pct = ath52 > 0 ? (price / ath52) * 100 : 0;
+    const atlPct = atl52 > 0 ? (price / atl52) * 100 : null;
+    const d = {
+      name: qt.longName || qt.shortName || qt.symbol,
+      symbol: qt.symbol,
+      pct,
+      atlPct,
+      priceStr: fmtPrice(price),
+      athStr: fmtPrice(ath52) + ' (52s)',
+      iconHtml: '📈'
+    };
+    return buildResultRow(d, i);
+  });
+
+  container.innerHTML = `
+    <div style="font-size:10px;color:var(--muted);margin-bottom:8px;padding-left:4px;">
+      ⚠ Acciones: se usa el máximo de 52 semanas, no ATH histórico.
+    </div>
+    ${rows.join('')}
+  `;
 }
 
 loadData();
