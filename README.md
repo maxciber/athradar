@@ -1,0 +1,1 @@
+ATHRadar es una herramienta minimalista diseñada para inversores que buscan oportunidades basadas en el contexto histórico. En lugar de centrarse en el ruido del precio diario, esta plataforma muestra qué tan lejos se encuentra un activo de su Máximo Histórico (ATH), permitiendo identificar niveles de descuento en activos de alta importancia.
