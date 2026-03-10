@@ -598,39 +598,185 @@ h1 .accent2 { color: var(--fire3); }
 }
 .threshold-val { color: var(--fire2); font-weight: 700; min-width: 30px; }
 
-/* ─── ATL RECOVERY ─── */
-.atl-recovery {
+
+/* ─── STABLE BADGE ─── */
+.stable-badge {
+  display: inline-block;
+  font-size: 8px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: rgba(112,112,160,0.15);
+  color: var(--muted2);
+  border: 1px solid rgba(112,112,160,0.25);
+  letter-spacing: 0.1em;
+  vertical-align: middle;
+  margin-left: 4px;
+}
+
+.stable-row {
+  opacity: 0.55;
+}
+.stable-row:hover { opacity: 0.8; }
+.stable-row .bar-fill {
+  background: var(--muted) !important;
+}
+
+/* ─── COMPARE ─── */
+.row {
+  cursor: pointer;
+}
+.compare-selected {
+  border-color: rgba(0,229,160,0.4) !important;
+  background: rgba(0,229,160,0.04) !important;
+}
+.compare-check {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--green);
+  font-size: 13px;
+  font-weight: 700;
+}
+.row { position: relative; }
+
+#compare-panel {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: #0e0e1a;
+  border-top: 2px solid var(--green);
+  z-index: 100;
+  padding: 16px 24px;
+  box-shadow: 0 -8px 40px rgba(0,0,0,0.6);
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+.compare-header {
   display: flex;
   align-items: center;
-  gap: 5px;
-  margin-top: 4px;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.compare-clear {
+  background: none;
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.compare-clear:hover { border-color: var(--red); color: var(--red); }
+
+.compare-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.compare-row {
+  display: grid;
+  grid-template-columns: 160px 1fr 1fr auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.compare-asset {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.compare-icon {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+.compare-icon img { width:100%;height:100%;border-radius:50%; }
+
+.compare-name {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.compare-sym { font-size: 9px; color: var(--muted); }
+
+.compare-bars {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.compare-bar-label {
   font-size: 9px;
   color: var(--muted);
-  letter-spacing: 0.04em;
+  letter-spacing: 0.08em;
+  width: 24px;
+  flex-shrink: 0;
 }
-.atl-badge {
-  color: var(--green);
+.compare-track {
+  flex: 1;
+  height: 6px;
+  background: var(--border2);
+  border-radius: 3px;
+  overflow: hidden;
+  min-width: 80px;
+}
+.compare-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+}
+.compare-val {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 12px;
   font-weight: 700;
-  font-size: 10px;
+  width: 52px;
+  text-align: right;
+  flex-shrink: 0;
 }
-.atl-badge.huge { color: var(--fire3); }
-
-/* ATL in near-card */
-.near-atl {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 8px;
-  padding-top: 8px;
-  border-top: 1px solid var(--border);
-  font-size: 10px;
+.compare-remove {
+  background: none;
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  width: 24px; height: 24px;
   color: var(--muted);
+  cursor: pointer;
+  font-size: 10px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+  flex-shrink: 0;
 }
-.near-atl-val {
-  color: var(--green);
-  font-weight: 700;
+.compare-remove:hover { border-color: var(--red); color: var(--red); }
+
+.compare-hint {
+  font-size: 9px;
+  color: var(--muted);
+  text-align: center;
+  margin-top: 10px;
+  letter-spacing: 0.05em;
 }
-.near-atl-val.huge { color: var(--fire3); }
+
+/* Stables toggle btn */
+.sort-btn.stables { margin-left: auto; }
+
+@media(max-width:620px) {
+  .compare-row { grid-template-columns: 120px 1fr auto; }
+  .compare-bars:last-of-type { display: none; }
+}
 
 /* ─── SECTOR FILTERS ─── */
 .sector-filters {
@@ -854,6 +1000,7 @@ h1 .accent2 { color: var(--fire3); }
       <button class="sort-btn active" id="sort-rank" onclick="sortBy('rank')">Por ranking</button>
       <button class="sort-btn" id="sort-pct" onclick="sortBy('pct')">Por % ATH</button>
       <button class="sort-btn" id="sort-dist" onclick="sortBy('dist')">Más cerca ATH</button>
+      <button class="sort-btn stables" id="stables-toggle" onclick="toggleStables()">👁 Mostrar stables</button>
     </div>
 
     <div class="col-headers">
@@ -1027,6 +1174,7 @@ let threshold = 5;
 function switchTab(tab) {
   currentTab = tab;
   activeSector = 'all';
+  compareSet = [];
   document.querySelectorAll('.tab').forEach((t,i) => {
     t.classList.toggle('active', (i===0&&tab==='crypto')||(i===1&&tab==='stocks'));
   });
@@ -1069,7 +1217,10 @@ function setStatus(state, txt) {
 
 // ── Render Near ATH ──
 function renderNearATH() {
-  const near = allData.filter(d => d.pct >= (100 - threshold) && d.pct <= 105);
+  const near = allData.filter(d =>
+    d.pct >= (100 - threshold) && d.pct <= 105 &&
+    (showStables || !isStable(d))
+  );
   const cnt = document.getElementById('near-count');
   const grid = document.getElementById('near-grid');
 
@@ -1114,11 +1265,6 @@ function renderNearATH() {
           <span>Precio: <b>${d.priceStr}</b></span>
           <span>ATH: <b>${d.athStr}</b></span>
         </div>
-        ${d.atlPct ? `<div class="near-atl">
-          <span>↑ Desde ATL:</span>
-          <span class="near-atl-val ${d.atlPct > 1000 ? 'huge' : ''}">+${fmtMultiple(d.atlPct)}</span>
-          ${d.atlStr ? `<span style="margin-left:auto;color:var(--muted)">ATL: ${d.atlStr}</span>` : ''}
-        </div>` : ''}
         <div class="distance-pill ${isUltra?'ultra':''}">
           ${isAt ? '🏆 En máximo histórico' : `↑ Faltan ${distPct}% para ATH`}
         </div>
@@ -1137,6 +1283,9 @@ function renderNearATH() {
 function renderTable(data) {
   let items = [...data];
 
+  // hide stables unless toggled
+  if (!showStables) items = items.filter(d => !isStable(d));
+
   // sector filter
   if (activeSector !== 'all') {
     const map = currentTab === 'crypto' ? CRYPTO_SECTORS : STOCK_SECTORS;
@@ -1154,21 +1303,24 @@ function renderTable(data) {
   if (sortMode === 'pct')  items.sort((a,b) => a.pct - b.pct);
   if (sortMode === 'dist') items.sort((a,b) => b.pct - a.pct);
 
-  const isNear = d => d.pct >= (100 - threshold);
+  const isNear = d => d.pct >= (100 - threshold) && !isStable(d);
 
   document.getElementById('table-body').innerHTML = items.map((d, i) => {
+    const stable = isStable(d);
     const pct = Math.min(100, d.pct);
     const distPct = (100 - d.pct).toFixed(1);
     const downLabel = d.pct >= 99.5 ? '🏆 ATH' : `-${distPct}%`;
+    const isSelected = compareSet.some(x => x.name === d.name);
     return `
-      <div class="row ${isNear(d)?'near-highlight':''}" style="animation-delay:${Math.min(i,30)*0.025}s">
+      <div class="row ${isNear(d)?'near-highlight':''} ${isSelected?'compare-selected':''} ${stable?'stable-row':''}"
+           style="animation-delay:${Math.min(i,30)*0.025}s"
+           onclick="toggleCompare(allData.find(x=>x.name===decodeURIComponent('${encodeURIComponent(d.name)}')))">
         <div class="rank">${d.rank}</div>
         <div class="asset-cell">
           <div class="asset-icon">${d.iconHtml}</div>
           <div>
-            <div class="asset-name">${d.name}</div>
+            <div class="asset-name">${d.name} ${stable ? '<span class="stable-badge">STABLE</span>' : ''}</div>
             <div class="asset-sym">${d.symbol}</div>
-            ${d.atlPct ? `<div class="atl-recovery">↑ desde ATL: <span class="atl-badge ${d.atlPct > 1000 ? 'huge' : ''}">+${fmtMultiple(d.atlPct)}</span></div>` : ''}
           </div>
         </div>
         <div class="bar-cell">
@@ -1181,9 +1333,12 @@ function renderTable(data) {
           </div>
         </div>
         <div class="pct-cell">
-          <div class="pct-num ${colorClass(pct)}">${pct >= 99.5 ? '≈100' : pct.toFixed(1)}%</div>
-          <div class="pct-sub">${downLabel}</div>
+          ${stable
+            ? `<div class="pct-num" style="color:var(--muted2);font-size:13px">≈$1.00</div><div class="pct-sub">pegged</div>`
+            : `<div class="pct-num ${colorClass(pct)}">${pct >= 99.5 ? '≈100' : pct.toFixed(1)}%</div><div class="pct-sub">${downLabel}</div>`
+          }
         </div>
+        ${isSelected ? '<div class="compare-check">✓</div>' : ''}
       </div>
     `;
   }).join('');
@@ -1222,10 +1377,8 @@ async function loadCrypto() {
       name: c.name,
       symbol: c.symbol.toUpperCase(),
       pct: c.ath > 0 ? (c.current_price / c.ath) * 100 : 0,
-      atlPct: c.atl > 0 ? (c.current_price / c.atl) * 100 : null,
       priceStr: fmtPrice(c.current_price),
       athStr: fmtPrice(c.ath),
-      atlStr: c.atl > 0 ? fmtPrice(c.atl) : null,
       iconHtml: `<img src="${c.image}" alt="${c.name}" onerror="this.style.display='none'">`
     }));
 
@@ -1290,15 +1443,93 @@ function loadData() {
   currentTab === 'crypto' ? loadCrypto() : loadStocks();
 }
 
-function fmtMultiple(atlPct) {
-  // atlPct = (currentPrice / atl) * 100
-  // e.g. 500% means 5x from ATL
-  const x = atlPct / 100;
-  if (x >= 1000) return (x/1000).toFixed(1) + ',000x';
-  if (x >= 100)  return Math.round(x) + 'x';
-  if (x >= 10)   return x.toFixed(1) + 'x';
-  return x.toFixed(2) + 'x';
+// ── Stablecoins — detectadas por precio y ATH en rango $0.85–$1.15 ──
+const STABLES_IDS = new Set([
+  'tether','usd-coin','dai','frax','true-usd','usdd','busd','usdb',
+  'paypal-usd','ethena-usde','usd1','usyc','buidl'
+]);
+function isStable(d) {
+  if (STABLES_IDS.has(d.coinId) || STABLES_IDS.has(d.symbol?.toLowerCase())) return true;
+  // Heurística: precio actual y ATH ambos entre $0.85 y $1.15
+  const price = parseFloat(d.priceStr.replace(/[$,]/g,''));
+  const ath   = parseFloat(d.athStr.replace(/[$,]/g,''));
+  if (price > 0.85 && price < 1.15 && ath > 0.85 && ath < 1.15) return true;
+  return false;
 }
+
+let showStables = false;
+function toggleStables() {
+  showStables = !showStables;
+  const btn = document.getElementById('stables-toggle');
+  btn.classList.toggle('active', showStables);
+  btn.textContent = showStables ? '👁 Ocultar stables' : '👁 Mostrar stables';
+  renderNearATH();
+  renderTable(allData);
+}
+
+// ── Comparison ──
+let compareSet = [];
+const MAX_COMPARE = 4;
+
+function toggleCompare(d) {
+  const idx = compareSet.findIndex(x => x.name === d.name);
+  if (idx > -1) {
+    compareSet.splice(idx, 1);
+  } else {
+    if (compareSet.length >= MAX_COMPARE) compareSet.shift();
+    compareSet.push(d);
+  }
+  renderTable(allData);
+  renderComparePanel();
+}
+
+function renderComparePanel() {
+  const panel = document.getElementById('compare-panel');
+  if (compareSet.length < 2) {
+    panel.style.display = 'none';
+    return;
+  }
+  panel.style.display = 'block';
+  panel.innerHTML = `
+    <div class="compare-header">
+      <span class="section-title" style="font-size:11px">⚖ Comparando ${compareSet.length} activos</span>
+      <button class="compare-clear" onclick="clearCompare()">✕ Limpiar</button>
+    </div>
+    <div class="compare-rows">
+      ${compareSet.map(d => {
+        const pct = Math.min(100, d.pct);
+        const stableTag = isStable(d) ? '<span class="stable-badge">STABLE</span>' : '';
+        return `
+          <div class="compare-row">
+            <div class="compare-asset">
+              <div class="compare-icon">${d.iconHtml}</div>
+              <div>
+                <div class="compare-name">${d.name} ${stableTag}</div>
+                <div class="compare-sym">${d.symbol}</div>
+              </div>
+            </div>
+            <div class="compare-bars">
+              <div class="compare-bar-label">ATH</div>
+              <div class="compare-track">
+                <div class="compare-fill ${fillClass(pct)}" style="width:${pct}%"></div>
+              </div>
+              <div class="compare-val ${colorClass(pct)}">${pct.toFixed(1)}%</div>
+            </div>
+            <button class="compare-remove" onclick="toggleCompare(compareSet.find(x=>x.name==='${d.name.replace(/'/g,"\\'")}'))">✕</button>
+          </div>
+        `;
+      }).join('')}
+    </div>
+    <div class="compare-hint">Haz clic en cualquier activo de la tabla para añadir o quitar de la comparación.</div>
+  `;
+}
+
+function clearCompare() {
+  compareSet = [];
+  renderTable(allData);
+  renderComparePanel();
+}
+
 
 // ── Extended search ──
 function buildResultRow(d, idx) {
@@ -1313,7 +1544,6 @@ function buildResultRow(d, idx) {
         <div>
           <div class="asset-name">${d.name}</div>
           <div class="asset-sym">${d.symbol}</div>
-          ${d.atlPct ? `<div class="atl-recovery">↑ desde ATL: <span class="atl-badge ${d.atlPct>1000?'huge':''}">+${fmtMultiple(d.atlPct)}</span></div>` : ''}
         </div>
       </div>
       <div class="bar-cell">
@@ -1392,7 +1622,6 @@ async function searchCrypto(q, container) {
       name: c.name,
       symbol: c.symbol.toUpperCase(),
       pct: c.ath > 0 ? (c.current_price / c.ath) * 100 : 0,
-      atlPct: c.atl > 0 ? (c.current_price / c.atl) * 100 : null,
       priceStr: fmtPrice(c.current_price),
       athStr: fmtPrice(c.ath),
       iconHtml: `<img src="${c.image}" alt="${c.name}" onerror="this.style.display='none'">`
@@ -1420,14 +1649,11 @@ async function searchStock(q, container) {
   const rows = quotes.slice(0, 4).map((qt, i) => {
     const price = qt.regularMarketPrice || 0;
     const ath52 = qt.fiftyTwoWeekHigh || price;
-    const atl52 = qt.fiftyTwoWeekLow || price;
     const pct = ath52 > 0 ? (price / ath52) * 100 : 0;
-    const atlPct = atl52 > 0 ? (price / atl52) * 100 : null;
     const d = {
       name: qt.longName || qt.shortName || qt.symbol,
       symbol: qt.symbol,
       pct,
-      atlPct,
       priceStr: fmtPrice(price),
       athStr: fmtPrice(ath52) + ' (52s)',
       iconHtml: '📈'
@@ -1445,5 +1671,8 @@ async function searchStock(q, container) {
 
 loadData();
 </script>
+
+<div id="compare-panel"></div>
+
 </body>
 </html>
