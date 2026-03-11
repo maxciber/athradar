@@ -834,6 +834,76 @@ h1 .accent2 { color: var(--fire3); }
   color: var(--fire3);
 }
 
+/* ─── VIEW TOGGLE ─── */
+.view-toggle {
+  display: flex;
+  gap: 2px;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  padding: 3px;
+  margin-left: auto;
+}
+.view-btn {
+  padding: 6px 14px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s;
+  letter-spacing: 0.05em;
+}
+.view-btn.active { background: var(--fire); color: #fff; }
+.view-btn:hover:not(.active) { color: var(--text); }
+
+/* ─── VISUAL VIEWS ─── */
+#viz-view {
+  width: 100%;
+  position: relative;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: default;
+}
+.viz-tooltip {
+  position: fixed;
+  background: #0e0e1a;
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 11px;
+  color: var(--text);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 9999;
+  min-width: 165px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+}
+.viz-tooltip.visible { opacity: 1; }
+.viz-tooltip .tt-name { font-family:'Unbounded',sans-serif; font-size:12px; font-weight:700; margin-bottom:6px; }
+.viz-tooltip .tt-row { display:flex; justify-content:space-between; gap:16px; font-size:10px; color:var(--muted); margin-top:3px; }
+.viz-tooltip .tt-val { color:var(--text); font-weight:700; }
+.heatmap-wrap { padding:12px; background:#08080f; border-radius:12px; }
+.heatmap-grid { display:flex; flex-wrap:wrap; gap:2px; }
+.hm-cell {
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  border-radius:4px; cursor:pointer; overflow:hidden; position:relative;
+  transition: filter 0.15s, transform 0.15s;
+}
+.hm-cell:hover { filter:brightness(1.35); transform:scale(1.05); z-index:2; }
+.hm-cell .hm-sym { font-family:'Space Mono',monospace; font-weight:700; color:rgba(255,255,255,0.92); line-height:1.1; text-align:center; }
+.hm-cell .hm-pct { font-family:'Space Mono',monospace; color:rgba(255,255,255,0.6); line-height:1.1; text-align:center; }
+.viz-legend {
+  display:flex; gap:14px; justify-content:center; padding:10px 0 6px;
+  font-size:10px; color:var(--muted); flex-wrap:wrap; background:#08080f;
+}
+.viz-leg-item { display:flex; align-items:center; gap:5px; }
+.viz-leg-dot { width:9px; height:9px; border-radius:50%; }
+
 /* ─── DISCLAIMER ─── */
 .disclaimer {
   margin-top: 48px;
@@ -1013,6 +1083,10 @@ h1 .accent2 { color: var(--fire3); }
   <div class="all-section">
     <div class="section-header">
       <span class="section-title">Todos los activos</span>
+      <div class="view-toggle">
+        <button class="view-btn active" id="view-list" onclick="setView('list')" title="Vista lista">☰ Lista</button>
+        <button class="view-btn" id="view-heatmap" onclick="setView('heatmap')" title="Mapa de calor">▦ Mapa</button>
+      </div>
     </div>
 
     <div class="table-controls">
@@ -1030,6 +1104,7 @@ h1 .accent2 { color: var(--fire3); }
       <div>#</div><div>Activo</div><div>% del máximo histórico</div><div style="text-align:right">Distancia</div>
     </div>
     <div class="table-body" id="table-body"></div>
+    <div id="viz-view" style="display:none"></div>
   </div>
 
   <div class="legend">
@@ -1062,36 +1137,57 @@ const CRYPTO_IDS = [
 ];
 
 const STOCKS = [
-  { symbol:'AAPL',  name:'Apple',           ath:260.09, icon:'🍎' },
-  { symbol:'MSFT',  name:'Microsoft',       ath:468.35, icon:'🪟' },
-  { symbol:'NVDA',  name:'NVIDIA',          ath:153.13, icon:'🟩' },
-  { symbol:'AMZN',  name:'Amazon',          ath:242.52, icon:'📦' },
-  { symbol:'GOOGL', name:'Alphabet',        ath:207.05, icon:'🔍' },
-  { symbol:'META',  name:'Meta',            ath:740.91, icon:'👁️' },
-  { symbol:'TSLA',  name:'Tesla',           ath:479.86, icon:'⚡' },
-  { symbol:'BRK-B', name:'Berkshire',       ath:519.89, icon:'🎩' },
-  { symbol:'JPM',   name:'JPMorgan',        ath:280.25, icon:'🏦' },
-  { symbol:'V',     name:'Visa',            ath:354.79, icon:'💳' },
-  { symbol:'WMT',   name:'Walmart',         ath:105.30, icon:'🛒' },
-  { symbol:'JNJ',   name:'J&J',             ath:186.69, icon:'💊' },
-  { symbol:'XOM',   name:'ExxonMobil',      ath:126.34, icon:'🛢️' },
-  { symbol:'UNH',   name:'UnitedHealth',    ath:630.72, icon:'🏥' },
-  { symbol:'MA',    name:'Mastercard',      ath:564.49, icon:'💰' },
-  { symbol:'PG',    name:'Procter & Gamble',ath:180.42, icon:'🧴' },
-  { symbol:'HD',    name:'Home Depot',      ath:439.36, icon:'🏠' },
-  { symbol:'COST',  name:'Costco',          ath:1078.23,icon:'🏪' },
-  { symbol:'AVGO',  name:'Broadcom',        ath:251.88, icon:'🔌' },
-  { symbol:'ORCL',  name:'Oracle',          ath:198.31, icon:'🗄️' },
-  { symbol:'ASML',  name:'ASML',            ath:1110.09,icon:'🔬' },
-  { symbol:'AMD',   name:'AMD',             ath:227.30, icon:'🔴' },
-  { symbol:'INTC',  name:'Intel',           ath:68.63,  icon:'🔵' },
-  { symbol:'QCOM',  name:'Qualcomm',        ath:230.63, icon:'📡' },
-  { symbol:'CRM',   name:'Salesforce',      ath:369.00, icon:'☁️' },
-  { symbol:'NFLX',  name:'Netflix',         ath:1064.50,icon:'🎬' },
-  { symbol:'DIS',   name:'Disney',          ath:203.02, icon:'🏰' },
-  { symbol:'PYPL',  name:'PayPal',          ath:310.16, icon:'🅿️' },
-  { symbol:'SBUX',  name:'Starbucks',       ath:126.32, icon:'☕' },
-  { symbol:'PLTR',  name:'Palantir',        ath:125.41, icon:'🛡️' },
+  { symbol:'AAPL',  name:'Apple',           ath:260.09,  icon:'🍎' },
+  { symbol:'MSFT',  name:'Microsoft',       ath:468.35,  icon:'🪟' },
+  { symbol:'NVDA',  name:'NVIDIA',          ath:153.13,  icon:'🟩' },
+  { symbol:'AMZN',  name:'Amazon',          ath:242.52,  icon:'📦' },
+  { symbol:'GOOGL', name:'Alphabet',        ath:207.05,  icon:'🔍' },
+  { symbol:'META',  name:'Meta',            ath:740.91,  icon:'👁️' },
+  { symbol:'TSLA',  name:'Tesla',           ath:479.86,  icon:'⚡' },
+  { symbol:'BRK-B', name:'Berkshire',       ath:519.89,  icon:'🎩' },
+  { symbol:'JPM',   name:'JPMorgan',        ath:280.25,  icon:'🏦' },
+  { symbol:'V',     name:'Visa',            ath:354.79,  icon:'💳' },
+  { symbol:'WMT',   name:'Walmart',         ath:105.30,  icon:'🛒' },
+  { symbol:'JNJ',   name:'J&J',             ath:186.69,  icon:'💊' },
+  { symbol:'XOM',   name:'ExxonMobil',      ath:126.34,  icon:'🛢️' },
+  { symbol:'UNH',   name:'UnitedHealth',    ath:630.72,  icon:'🏥' },
+  { symbol:'MA',    name:'Mastercard',      ath:564.49,  icon:'💰' },
+  { symbol:'PG',    name:'Procter & Gamble',ath:180.42,  icon:'🧴' },
+  { symbol:'HD',    name:'Home Depot',      ath:439.36,  icon:'🏠' },
+  { symbol:'COST',  name:'Costco',          ath:1078.23, icon:'🏪' },
+  { symbol:'AVGO',  name:'Broadcom',        ath:251.88,  icon:'🔌' },
+  { symbol:'ORCL',  name:'Oracle',          ath:198.31,  icon:'🗄️' },
+  { symbol:'ASML',  name:'ASML',            ath:1110.09, icon:'🔬' },
+  { symbol:'AMD',   name:'AMD',             ath:227.30,  icon:'🔴' },
+  { symbol:'INTC',  name:'Intel',           ath:68.63,   icon:'🔵' },
+  { symbol:'QCOM',  name:'Qualcomm',        ath:230.63,  icon:'📡' },
+  { symbol:'CRM',   name:'Salesforce',      ath:369.00,  icon:'☁️' },
+  { symbol:'NFLX',  name:'Netflix',         ath:1064.50, icon:'🎬' },
+  { symbol:'DIS',   name:'Disney',          ath:203.02,  icon:'🏰' },
+  { symbol:'PYPL',  name:'PayPal',          ath:310.16,  icon:'🅿️' },
+  { symbol:'SBUX',  name:'Starbucks',       ath:126.32,  icon:'☕' },
+  { symbol:'PLTR',  name:'Palantir',        ath:125.41,  icon:'🛡️' },
+  // Mid caps & gemas
+  { symbol:'SMCI',  name:'Super Micro',     ath:122.99,  icon:'🖥️' },
+  { symbol:'ARM',   name:'ARM Holdings',    ath:188.75,  icon:'💪' },
+  { symbol:'MSTR',  name:'MicroStrategy',   ath:543.00,  icon:'₿' },
+  { symbol:'COIN',  name:'Coinbase',        ath:429.54,  icon:'🔵' },
+  { symbol:'HOOD',  name:'Robinhood',       ath:85.00,   icon:'🏹' },
+  { symbol:'MARA',  name:'MARA Holdings',   ath:32.00,   icon:'⛏️' },
+  { symbol:'RIOT',  name:'Riot Platforms',  ath:79.50,   icon:'⚡' },
+  { symbol:'SQ',    name:'Block (Square)',  ath:289.23,  icon:'◼️' },
+  { symbol:'SHOP',  name:'Shopify',         ath:176.29,  icon:'🛍️' },
+  { symbol:'SNOW',  name:'Snowflake',       ath:405.00,  icon:'❄️' },
+  { symbol:'PATH',  name:'UiPath',          ath:85.12,   icon:'🤖' },
+  { symbol:'AI',    name:'C3.ai',           ath:177.47,  icon:'🧠' },
+  { symbol:'SOUN',  name:'SoundHound AI',   ath:24.98,   icon:'🔊' },
+  { symbol:'IONQ',  name:'IonQ',            ath:54.68,   icon:'⚛️' },
+  { symbol:'RGTI',  name:'Rigetti Computing',ath:21.58,  icon:'🔮' },
+  { symbol:'RXRX',  name:'Recursion Pharma',ath:23.83,  icon:'🧬' },
+  { symbol:'CELH',  name:'Celsius Holdings',ath:99.62,   icon:'🥤' },
+  { symbol:'DUOL',  name:'Duolingo',        ath:403.00,  icon:'🦉' },
+  { symbol:'RBLX',  name:'Roblox',          ath:141.60,  icon:'🎮' },
+  { symbol:'U',     name:'Unity Software',  ath:210.00,  icon:'🎯' },
 ];
 
 const CRYPTO_SECTORS = {
@@ -1148,16 +1244,20 @@ const CRYPTO_SECTORS = {
 };
 
 const STOCK_SECTORS = {
-  'AAPL':  'Tech',       'MSFT':  'Tech',        'NVDA':  'IA / Semis',
-  'AMZN':  'Tech',       'GOOGL': 'IA / Semis',  'META':  'Tech',
-  'TSLA':  'EV / Tech',  'BRK-B': 'Finanzas',    'JPM':   'Finanzas',
-  'V':     'Finanzas',   'WMT':   'Consumo',      'JNJ':   'Salud',
-  'XOM':   'Energía',    'UNH':   'Salud',        'MA':    'Finanzas',
-  'PG':    'Consumo',    'HD':    'Consumo',       'COST':  'Consumo',
-  'AVGO':  'IA / Semis', 'ORCL':  'Tech',         'ASML':  'IA / Semis',
-  'AMD':   'IA / Semis', 'INTC':  'IA / Semis',   'QCOM':  'IA / Semis',
-  'CRM':   'Tech',       'NFLX':  'Entretenimiento','DIS':  'Entretenimiento',
-  'PYPL':  'Finanzas',   'SBUX':  'Consumo',      'PLTR':  'IA / Semis',
+  'AAPL':'Tech','MSFT':'Tech','NVDA':'IA / Semis','AMZN':'Tech',
+  'GOOGL':'IA / Semis','META':'Tech','TSLA':'EV / Tech','BRK-B':'Finanzas',
+  'JPM':'Finanzas','V':'Finanzas','WMT':'Consumo','JNJ':'Salud',
+  'XOM':'Energía','UNH':'Salud','MA':'Finanzas','PG':'Consumo',
+  'HD':'Consumo','COST':'Consumo','AVGO':'IA / Semis','ORCL':'Tech',
+  'ASML':'IA / Semis','AMD':'IA / Semis','INTC':'IA / Semis','QCOM':'IA / Semis',
+  'CRM':'Tech','NFLX':'Entretenimiento','DIS':'Entretenimiento',
+  'PYPL':'Finanzas','SBUX':'Consumo','PLTR':'IA / Semis',
+  'SMCI':'IA / Semis','ARM':'IA / Semis','MSTR':'Cripto / Tech',
+  'COIN':'Cripto / Tech','HOOD':'Finanzas','MARA':'Cripto / Tech',
+  'RIOT':'Cripto / Tech','SQ':'Finanzas','SHOP':'Tech','SNOW':'Tech',
+  'PATH':'IA / Semis','AI':'IA / Semis','SOUN':'IA / Semis',
+  'IONQ':'Quantum','RGTI':'Quantum','RXRX':'Salud','CELH':'Consumo',
+  'DUOL':'Tech','RBLX':'Entretenimiento','U':'Entretenimiento',
 };
 
 let activeSector = 'all';
@@ -1408,7 +1508,7 @@ async function loadCrypto() {
   document.getElementById('table-body').innerHTML = '';
 
   try {
-    const url = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50&page=1&sparkline=false&price_change_percentage=24h`;
+    const url = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=1&sparkline=false&price_change_percentage=24h`;
     const res = await fetch(url);
     if (!res.ok) throw new Error(res.status);
     const raw = await res.json();
@@ -1421,6 +1521,7 @@ async function loadCrypto() {
       pct: c.ath > 0 ? (c.current_price / c.ath) * 100 : 0,
       change24h: c.price_change_percentage_24h ?? null,
       athDate: c.ath_date ? new Date(c.ath_date) : null,
+      marketCap: c.market_cap || 0,
       priceStr: fmtPrice(c.current_price),
       athStr: fmtPrice(c.ath),
       iconHtml: `<img src="${c.image}" alt="${c.name}" onerror="this.style.display='none'">`
@@ -1450,6 +1551,10 @@ async function loadStocks() {
     'PG':168,'HD':385,'COST':960,'AVGO':185,'ORCL':165,
     'ASML':720,'AMD':108,'INTC':21,'QCOM':155,'CRM':290,
     'NFLX':980,'DIS':100,'PYPL':72,'SBUX':88,'PLTR':90,
+    'SMCI':40,'ARM':120,'MSTR':320,'COIN':210,'HOOD':45,
+    'MARA':15,'RIOT':10,'SQ':68,'SHOP':92,'SNOW':145,
+    'PATH':14,'AI':28,'SOUN':8,'IONQ':28,'RGTI':9,
+    'RXRX':5,'CELH':32,'DUOL':280,'RBLX':42,'U':18,
   };
 
   try {
@@ -1470,6 +1575,7 @@ async function loadStocks() {
       name: s.name,
       symbol: s.symbol,
       pct: (price / s.ath) * 100,
+      marketCap: (price * s.ath) * 1e6, // rough proxy for relative size
       priceStr: fmtPrice(price),
       athStr: fmtPrice(s.ath),
       iconHtml: s.icon
@@ -1712,6 +1818,125 @@ async function searchStock(q, container) {
     ${rows.join('')}
   `;
 }
+
+// -- View mode --
+let viewMode = 'list';
+
+function setView(mode) {
+  viewMode = mode;
+  ['list','heatmap'].forEach(m => {
+    const btn = document.getElementById('view-' + m);
+    if (btn) btn.classList.toggle('active', m === mode);
+  });
+  document.getElementById('table-body').style.display = mode === 'list' ? '' : 'none';
+  document.getElementById('viz-view').style.display = (mode !== 'list') ? '' : 'none';
+  document.querySelector('.col-headers').style.display = mode === 'list' ? '' : 'none';
+  if (mode === 'heatmap') renderHeatmap();
+}
+
+function vizColor(pct) {
+  if (pct >= 95) return '#b8850a';
+  if (pct >= 80) return '#0e8f5a';
+  if (pct >= 60) return '#1a6b2e';
+  if (pct >= 40) return '#7a5800';
+  if (pct >= 20) return '#8b2020';
+  return '#4a0e0e';
+}
+function treeColor(pct) {
+  if (pct >= 95) return { trunk:'#a0522d', canopy:'#ffd700', glow:'rgba(255,215,0,0.25)' };
+  if (pct >= 80) return { trunk:'#7a5c3a', canopy:'#00c87a', glow:'rgba(0,200,120,0.15)' };
+  if (pct >= 60) return { trunk:'#6b5040', canopy:'#4a9e4a', glow:'none' };
+  if (pct >= 40) return { trunk:'#5a4535', canopy:'#8b6914', glow:'none' };
+  if (pct >= 20) return { trunk:'#4a3828', canopy:'#a04040', glow:'none' };
+  return { trunk:'#3a2820', canopy:'#7a2020', glow:'none' };
+}
+
+function getVizItems() {
+  let items = allData.filter(d => !isStable(d));
+  if (activeSector !== 'all') {
+    const map = currentTab === 'crypto' ? CRYPTO_SECTORS : STOCK_SECTORS;
+    items = items.filter(d => {
+      const id = currentTab === 'crypto' ? d.coinId : d.symbol;
+      return map[id] === activeSector;
+    });
+  }
+  return items;
+}
+
+function showVizTooltip(e, d) {
+  let tt = document.getElementById('viz-tooltip');
+  if (!tt) {
+    tt = document.createElement('div');
+    tt.id = 'viz-tooltip';
+    tt.className = 'viz-tooltip';
+    document.body.appendChild(tt);
+  }
+  const pct = Math.min(100, d.pct);
+  const chg = d.change24h != null
+    ? '<span style="color:' + (d.change24h >= 0 ? 'var(--green)' : 'var(--red)') + '">'
+      + (d.change24h >= 0 ? '\u25b2' : '\u25bc') + ' ' + Math.abs(d.change24h).toFixed(2) + '%</span>'
+    : '\u2014';
+  tt.innerHTML =
+    '<div class="tt-name">' + d.name + '</div>' +
+    '<div class="tt-row"><span>% del ATH</span><span class="tt-val" style="color:' + treeColor(pct).canopy + '">' + pct.toFixed(1) + '%</span></div>' +
+    '<div class="tt-row"><span>Precio</span><span class="tt-val">' + d.priceStr + '</span></div>' +
+    '<div class="tt-row"><span>ATH</span><span class="tt-val">' + d.athStr + '</span></div>' +
+    '<div class="tt-row"><span>24h</span><span class="tt-val">' + chg + '</span></div>' +
+    (pct < 99.5
+      ? '<div class="tt-row"><span>Faltan</span><span class="tt-val">-' + (100 - d.pct).toFixed(1) + '%</span></div>'
+      : '<div class="tt-row" style="color:#ffd700">\ud83c\udfc6 En m\u00e1ximo hist\u00f3rico</div>');
+  let tx = e.clientX + 14, ty = e.clientY + 14;
+  if (tx + 185 > window.innerWidth)  tx = e.clientX - 190;
+  if (ty + 180 > window.innerHeight) ty = e.clientY - 180;
+  tt.style.left = tx + 'px';
+  tt.style.top  = ty + 'px';
+  tt.classList.add('visible');
+}
+
+function hideVizTooltip() {
+  document.getElementById('viz-tooltip')?.classList.remove('visible');
+}
+
+// -- HEATMAP --
+function renderHeatmap() {
+  const container = document.getElementById('viz-view');
+  const items = getVizItems();
+  if (!items.length) { container.innerHTML = '<div style="text-align:center;padding:60px;color:var(--muted)">No hay activos</div>'; return; }
+  const sorted = [...items].sort((a,b) => (b.marketCap||0) - (a.marketCap||0));
+  const maxCap = sorted[0].marketCap || 1;
+  window._vizData = sorted;
+
+  const cells = sorted.map((d, i) => {
+    const capRatio = d.marketCap > 0 ? Math.pow(d.marketCap / maxCap, 0.38) : 0.08;
+    const size = Math.max(34, Math.round(30 + capRatio * 130));
+    const pct  = Math.min(100, d.pct);
+    const bg   = vizColor(pct);
+    const fs   = Math.max(7, Math.round(size / 5.5));
+    const fsp  = Math.max(6, Math.round(size / 7));
+    return '<div class="hm-cell" style="width:' + size + 'px;height:' + size + 'px;background:' + bg + ';"'
+      + ' onmouseenter="showVizTooltip(event, window._vizData[' + i + '])"'
+      + ' onmouseleave="hideVizTooltip()">'
+      + '<div class="hm-sym" style="font-size:' + fs + 'px">' + d.symbol + '</div>'
+      + '<div class="hm-pct" style="font-size:' + fsp + 'px">' + pct.toFixed(0) + '%</div>'
+      + '</div>';
+  }).join('');
+
+  container.innerHTML =
+    '<div class="heatmap-wrap"><div class="heatmap-grid">' + cells + '</div></div>' +
+    '<div class="viz-legend">' +
+    '<div class="viz-leg-item"><div class="viz-leg-dot" style="background:#b8850a"></div>\u226595% ATH \ud83d\udd25</div>' +
+    '<div class="viz-leg-item"><div class="viz-leg-dot" style="background:#0e8f5a"></div>80\u201395%</div>' +
+    '<div class="viz-leg-item"><div class="viz-leg-dot" style="background:#1a6b2e"></div>60\u201380%</div>' +
+    '<div class="viz-leg-item"><div class="viz-leg-dot" style="background:#7a5800"></div>40\u201360%</div>' +
+    '<div class="viz-leg-item"><div class="viz-leg-dot" style="background:#8b2020"></div>20\u201340%</div>' +
+    '<div class="viz-leg-item"><div class="viz-leg-dot" style="background:#4a0e0e"></div>&lt;20%</div>' +
+    '<div class="viz-leg-item" style="margin-left:12px">\u2b1b tama\u00f1o = market cap</div>' +
+    '</div>';
+}
+
+
+function showVizTooltip() {}
+function hideVizTooltip() { hideVizTooltip(); }
 
 loadData();
 </script>
