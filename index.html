@@ -599,6 +599,29 @@ h1 .accent2 { color: var(--fire3); }
 .threshold-val { color: var(--fire2); font-weight: 700; min-width: 30px; }
 
 
+/* ─── 24H CHANGE & ATH DATE ─── */
+.change-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-top: 3px;
+  letter-spacing: 0.03em;
+}
+.change-up   { color: var(--green);  background: rgba(0,229,160,0.1); }
+.change-down { color: var(--red);    background: rgba(255,59,92,0.1); }
+.change-flat { color: var(--muted2); background: rgba(112,112,160,0.1); }
+
+.ath-date {
+  font-size: 9px;
+  color: var(--muted);
+  margin-top: 2px;
+  letter-spacing: 0.03em;
+}
+
 /* ─── STABLE BADGE ─── */
 .stable-badge {
   display: inline-block;
@@ -1210,6 +1233,19 @@ function fmtPrice(n) {
   return '$' + n.toFixed(6);
 }
 
+function fmtAthDate(date) {
+  if (!date) return null;
+  const now = new Date();
+  const diffMs = now - date;
+  const diffDays = Math.floor(diffMs / 86400000);
+  const diffMonths = Math.floor(diffDays / 30);
+  const diffYears = Math.floor(diffDays / 365);
+  if (diffDays < 7)    return 'hace ' + diffDays + 'd';
+  if (diffMonths < 1)  return 'hace ' + Math.floor(diffDays/7) + 'sem';
+  if (diffMonths < 24) return 'hace ' + diffMonths + 'meses';
+  return 'hace ' + diffYears + ' años';
+}
+
 function setStatus(state, txt) {
   document.getElementById('sdot').className = 'dot ' + state;
   document.getElementById('stxt').textContent = txt;
@@ -1263,7 +1299,7 @@ function renderNearATH() {
         </div>
         <div class="near-prices">
           <span>Precio: <b>${d.priceStr}</b></span>
-          <span>ATH: <b>${d.athStr}</b></span>
+          <span>ATH: <b>${d.athStr}</b>${d.athDate ? `<span class="ath-date"> · ${fmtAthDate(d.athDate)}</span>` : ''}</span>
         </div>
         <div class="distance-pill ${isUltra?'ultra':''}">
           ${isAt ? '🏆 En máximo histórico' : `↑ Faltan ${distPct}% para ATH`}
@@ -1321,6 +1357,12 @@ function renderTable(data) {
           <div>
             <div class="asset-name">${d.name} ${stable ? '<span class="stable-badge">STABLE</span>' : ''}</div>
             <div class="asset-sym">${d.symbol}</div>
+            ${!stable && d.change24h != null ? (() => {
+              const c = d.change24h;
+              const cls = c > 0.5 ? 'change-up' : c < -0.5 ? 'change-down' : 'change-flat';
+              const arrow = c > 0.5 ? '▲' : c < -0.5 ? '▼' : '—';
+              return `<span class="change-badge ${cls}">${arrow} ${Math.abs(c).toFixed(2)}%</span>`;
+            })() : ''}
           </div>
         </div>
         <div class="bar-cell">
@@ -1329,7 +1371,7 @@ function renderTable(data) {
           </div>
           <div class="bar-meta">
             <span>${d.priceStr}</span>
-            <span>ATH ${d.athStr}</span>
+            <span>ATH ${d.athStr}${d.athDate ? `<span class="ath-date"> · ${fmtAthDate(d.athDate)}</span>` : ''}</span>
           </div>
         </div>
         <div class="pct-cell">
@@ -1366,7 +1408,7 @@ async function loadCrypto() {
   document.getElementById('table-body').innerHTML = '';
 
   try {
-    const url = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50&page=1&sparkline=false`;
+    const url = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50&page=1&sparkline=false&price_change_percentage=24h`;
     const res = await fetch(url);
     if (!res.ok) throw new Error(res.status);
     const raw = await res.json();
@@ -1377,6 +1419,8 @@ async function loadCrypto() {
       name: c.name,
       symbol: c.symbol.toUpperCase(),
       pct: c.ath > 0 ? (c.current_price / c.ath) * 100 : 0,
+      change24h: c.price_change_percentage_24h ?? null,
+      athDate: c.ath_date ? new Date(c.ath_date) : null,
       priceStr: fmtPrice(c.current_price),
       athStr: fmtPrice(c.ath),
       iconHtml: `<img src="${c.image}" alt="${c.name}" onerror="this.style.display='none'">`
