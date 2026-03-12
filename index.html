@@ -111,6 +111,20 @@ h1 {
 h1 .accent { color: var(--fire); }
 h1 .accent2 { color: var(--fire3); }
 
+.twitter-link {
+  margin-left: auto;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  text-decoration: none;
+  border: 1px solid var(--border2);
+  padding: 5px 12px;
+  border-radius: 20px;
+  transition: color 0.2s, border-color 0.2s;
+  letter-spacing: 0.04em;
+}
+.twitter-link:hover { color: var(--text); border-color: var(--muted2); }
+
 .header-sub {
   margin-top: 16px;
   font-size: 12px;
@@ -1020,6 +1034,87 @@ h1 .accent2 { color: var(--fire3); }
   .col-headers, .row, .search-result-row { grid-template-columns: 30px 1fr 80px; }
   .bar-cell { display: none; }
 }
+
+/* ─── WELCOME SCREEN ─── */
+#welcome-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(6,6,15,0.92);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.welcome-box {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 16px;
+  max-width: 480px;
+  width: 100%;
+  padding: 36px 40px;
+  text-align: center;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.7);
+}
+.welcome-icon { font-size: 48px; margin-bottom: 16px; }
+.welcome-title {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 22px;
+  font-weight: 900;
+  background: linear-gradient(90deg, var(--fire), var(--fire3));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 12px;
+}
+.welcome-sub {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.7;
+  margin-bottom: 28px;
+}
+.welcome-features {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 28px;
+  text-align: left;
+}
+.welcome-feat {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--text);
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+}
+.welcome-feat-icon { font-size: 18px; flex-shrink: 0; }
+.welcome-btn {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(90deg, var(--fire), var(--fire3));
+  border: none;
+  border-radius: 8px;
+  font-family: 'Unbounded', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+  letter-spacing: 0.08em;
+  transition: opacity 0.2s;
+}
+.welcome-btn:hover { opacity: 0.88; }
+.welcome-footer {
+  margin-top: 16px;
+  font-size: 10px;
+  color: var(--muted);
+}
+.welcome-footer a { color: var(--muted2); text-decoration: none; }
+.welcome-footer a:hover { color: var(--text); }
 </style>
 </head>
 <body>
@@ -1032,6 +1127,7 @@ h1 .accent2 { color: var(--fire3); }
     <div class="logo-row">
       <div class="logo-icon">🔥</div>
       <span class="logo-text">ATH Radar</span>
+      <a class="twitter-link" href="https://twitter.com/athradar" target="_blank" rel="noopener">𝕏 @athradar</a>
     </div>
     <h1>¿A cuánto del<br><span class="accent">máximo</span> <span class="accent2">histórico?</span></h1>
     <p class="header-sub">Precio actual vs. ATH — detecta qué activos están a punto de romper máximos.</p>
@@ -1191,56 +1287,123 @@ const STOCKS = [
 ];
 
 const CRYPTO_SECTORS = {
+  // Store of Value
   'bitcoin':             'Store of Value',
-  'ethereum':            'L1',
-  'binancecoin':         'Exchange',
-  'solana':              'L1',
-  'ripple':              'Pagos',
-  'dogecoin':            'Meme',
-  'cardano':             'L1',
-  'avalanche-2':         'L1',
-  'polkadot':            'L2 / Interop',
-  'chainlink':           'Infraestructura',
   'litecoin':            'Store of Value',
   'bitcoin-cash':        'Store of Value',
-  'uniswap':             'DeFi',
-  'stellar':             'Pagos',
-  'cosmos':              'L2 / Interop',
-  'monero':              'Privacidad',
-  'ethereum-classic':    'L1',
-  'filecoin':            'Infraestructura',
-  'tether':              'Stablecoin',
-  'usd-coin':            'Stablecoin',
+  'bitcoin-sv':          'Store of Value',
+  'wrapped-bitcoin':     'Store of Value',
+  // L1
+  'ethereum':            'L1',
+  'solana':              'L1',
+  'cardano':             'L1',
+  'avalanche-2':         'L1',
   'near':                'L1',
-  'vechain':             'Infraestructura',
-  'injective-protocol':  'DeFi',
   'aptos':               'L1',
+  'sui':                 'L1',
+  'ethereum-classic':    'L1',
+  'flow':                'L1',
+  'mina-protocol':       'L1',
+  'tron':                'L1',
+  'ton':                 'L1',
+  'internet-computer':   'L1',
+  'multiversx':          'L1',
+  'sei-network':         'L1',
+  'celestia':            'L1',
+  'kaspa':               'L1',
+  'algorand':            'L1',
+  'hedera-hashgraph':    'L1',
+  // L2 / Interop
+  'polkadot':            'L2 / Interop',
+  'cosmos':              'L2 / Interop',
   'arbitrum':            'L2 / Interop',
   'optimism':            'L2 / Interop',
-  'the-graph':           'Infraestructura',
+  'stacks':              'L2 / Interop',
+  'mantle':              'L2 / Interop',
+  'polygon':             'L2 / Interop',
+  'base':                'L2 / Interop',
+  'zksync':              'L2 / Interop',
+  'linea':               'L2 / Interop',
+  'scroll':              'L2 / Interop',
+  // DeFi
+  'uniswap':             'DeFi',
   'aave':                'DeFi',
   'maker':               'DeFi',
   'lido-dao':            'DeFi',
-  'render-token':        'IA / DePIN',
-  'fetch-ai':            'IA / DePIN',
   'thorchain':           'DeFi',
   'kava':                'DeFi',
-  'flow':                'L1',
-  'mina-protocol':       'L1',
+  'dydx':                'DeFi',
+  'gmx':                 'DeFi',
+  'curve-dao-token':     'DeFi',
+  'convex-finance':      'DeFi',
+  'rocket-pool':         'DeFi',
+  'pancakeswap-token':   'DeFi',
+  'compound-governance-token': 'DeFi',
+  'balancer':            'DeFi',
+  'synthetix-network-token': 'DeFi',
+  'yearn-finance':       'DeFi',
+  'jupiter-exchange-solana': 'DeFi',
+  'raydium':             'DeFi',
+  'hyperliquid':         'DeFi',
+  // Pagos
+  'ripple':              'Pagos',
+  'stellar':             'Pagos',
+  'nano':                'Pagos',
+  'dash':                'Pagos',
+  // Exchange
+  'binancecoin':         'Exchange',
+  'okb':                 'Exchange',
+  'crypto-com-chain':    'Exchange',
+  'gate':                'Exchange',
+  'kucoin-shares':       'Exchange',
+  // Stablecoin
+  'tether':              'Stablecoin',
+  'usd-coin':            'Stablecoin',
+  'frax-share':          'Stablecoin',
+  'dai':                 'Stablecoin',
+  'true-usd':            'Stablecoin',
+  'usdd':                'Stablecoin',
+  'ethena-usde':         'Stablecoin',
+  // Privacidad
+  'monero':              'Privacidad',
+  'zcash':               'Privacidad',
+  // Infraestructura
+  'chainlink':           'Infraestructura',
+  'filecoin':            'Infraestructura',
+  'vechain':             'Infraestructura',
+  'the-graph':           'Infraestructura',
+  'akash-network':       'Infraestructura',
+  'band-protocol':       'Infraestructura',
+  'api3':                'Infraestructura',
+  // IA / DePIN
+  'render-token':        'IA / DePIN',
+  'fetch-ai':            'IA / DePIN',
   'helium':              'IA / DePIN',
+  'bittensor':           'IA / DePIN',
+  'worldcoin-wld':       'IA / DePIN',
+  'ocean-protocol':      'IA / DePIN',
+  'grass':               'IA / DePIN',
+  'io':                  'IA / DePIN',
+  // Gaming / NFT
   'axie-infinity':       'Gaming / NFT',
   'decentraland':        'Gaming / NFT',
   'the-sandbox':         'Gaming / NFT',
   'immutable-x':         'Gaming / NFT',
   'blur':                'Gaming / NFT',
-  'dydx':                'DeFi',
-  'gmx':                 'DeFi',
-  'curve-dao-token':     'DeFi',
-  'convex-finance':      'DeFi',
-  'frax-share':          'Stablecoin',
-  'rocket-pool':         'DeFi',
-  'stacks':              'L2 / Interop',
-  'mantle':              'L2 / Interop',
+  'gala':                'Gaming / NFT',
+  'enjincoin':           'Gaming / NFT',
+  'stepn':               'Gaming / NFT',
+  // Meme
+  'dogecoin':            'Meme',
+  'shiba-inu':           'Meme',
+  'pepe':                'Meme',
+  'dogwifcoin':          'Meme',
+  'bonk':                'Meme',
+  'floki':               'Meme',
+  'book-of-meme':        'Meme',
+  'official-trump':      'Meme',
+  'popcat':              'Meme',
+  'injective-protocol':  'DeFi',
 };
 
 const STOCK_SECTORS = {
@@ -1938,10 +2101,40 @@ function renderHeatmap() {
 function showVizTooltip() {}
 function hideVizTooltip() { hideVizTooltip(); }
 
+function closeWelcome() {
+  const el = document.getElementById('welcome-overlay');
+  el.style.transition = 'opacity 0.3s';
+  el.style.opacity = '0';
+  setTimeout(() => el.remove(), 300);
+  try { localStorage.setItem('ath_welcomed', '1'); } catch(e) {}
+}
+
+// Skip welcome if already seen
+(function() {
+  try { if (localStorage.getItem('ath_welcomed')) { document.getElementById('welcome-overlay')?.remove(); } } catch(e) {}
+})();
+
 loadData();
 </script>
 
 <div id="compare-panel"></div>
+
+
+<div id="welcome-overlay">
+  <div class="welcome-box">
+    <div class="welcome-icon">🔥</div>
+    <div class="welcome-title">ATH Radar</div>
+    <p class="welcome-sub">Detecta qué activos están a punto de romper sus máximos históricos — en tiempo real.</p>
+    <div class="welcome-features">
+      <div class="welcome-feat"><span class="welcome-feat-icon">📊</span><span>250 criptos + 50 acciones US ordenadas por proximidad al ATH</span></div>
+      <div class="welcome-feat"><span class="welcome-feat-icon">🔥</span><span>Zona caliente — activos en zona de máximos con umbral ajustable</span></div>
+      <div class="welcome-feat"><span class="welcome-feat-icon">▦</span><span>Mapa de calor visual — todo el mercado de un vistazo</span></div>
+      <div class="welcome-feat"><span class="welcome-feat-icon">🔎</span><span>Busca cualquier cripto o acción aunque no esté en la lista</span></div>
+    </div>
+    <button class="welcome-btn" onclick="closeWelcome()">EXPLORAR EL MERCADO →</button>
+    <div class="welcome-footer">Datos orientativos · No es asesoramiento financiero · <a href="https://twitter.com/athradar" target="_blank">𝕏 @athradar</a></div>
+  </div>
+</div>
 
 </body>
 </html>
