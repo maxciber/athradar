@@ -821,6 +821,86 @@ h1 .accent2 { color: var(--fire3); }
 /* Stables toggle btn */
 .sort-btn.stables { margin-left: auto; }
 
+/* ─── STATS BAND ─── */
+.stats-band {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 28px;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 14px 16px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+}
+.stat-card.card-fire::before  { background: linear-gradient(90deg, var(--fire), var(--fire3)); }
+.stat-card.card-green::before { background: var(--green); }
+.stat-card.card-up::before    { background: #00e5a0; }
+.stat-card.card-down::before  { background: var(--red); }
+.stat-num {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 26px;
+  font-weight: 900;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.stat-num.fire  { background: linear-gradient(90deg,var(--fire),var(--fire3)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.stat-num.green { color: var(--green); }
+.stat-num.up    { color: #00e5a0; }
+.stat-num.down  { color: var(--red); }
+.stat-label {
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+/* ─── SIGNALS ─── */
+.signals-section { margin-bottom: 32px; }
+.signals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+.signal-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: default;
+  transition: border-color 0.2s;
+}
+.signal-card:hover { border-color: var(--border2); }
+.signal-card.sig-hot   { border-left: 3px solid var(--fire); }
+.signal-card.sig-break { border-left: 3px solid var(--fire3); }
+.signal-card.sig-up    { border-left: 3px solid #00e5a0; }
+.signal-card.sig-down  { border-left: 3px solid var(--red); }
+.signal-icon { font-size: 22px; flex-shrink: 0; }
+.signal-body { flex: 1; min-width: 0; }
+.signal-name { font-size: 12px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.signal-desc { font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4; }
+.signal-val  { font-family: 'Space Mono', monospace; font-size: 11px; font-weight: 700; text-align: right; flex-shrink: 0; }
+
+@media(max-width:620px) {
+  .stats-band { grid-template-columns: repeat(2,1fr); }
+  .stat-num { font-size: 20px; }
+}
+
 @media(max-width:620px) {
   .compare-row { grid-template-columns: 120px 1fr auto; }
   .compare-bars:last-of-type { display: none; }
@@ -1155,6 +1235,26 @@ h1 .accent2 { color: var(--fire3); }
     </div>
   </div>
 
+  <!-- ══ STATS BAND ══ -->
+  <div class="stats-band" id="stats-band">
+    <div class="stat-card card-fire">
+      <div class="stat-num fire" id="stat-hot">—</div>
+      <div class="stat-label">En zona caliente</div>
+    </div>
+    <div class="stat-card card-green">
+      <div class="stat-num green" id="stat-ath">—</div>
+      <div class="stat-label">En máximo histórico</div>
+    </div>
+    <div class="stat-card card-up">
+      <div class="stat-num up" id="stat-approaching">—</div>
+      <div class="stat-label">Acercándose hoy</div>
+    </div>
+    <div class="stat-card card-down">
+      <div class="stat-num down" id="stat-falling">—</div>
+      <div class="stat-label">Alejándose hoy</div>
+    </div>
+  </div>
+
   <!-- ══ EXTENDED SEARCH ══ -->
   <div class="search-section">
     <div class="section-header">
@@ -1184,6 +1284,17 @@ h1 .accent2 { color: var(--fire3); }
       <span>del ATH</span>
     </div>
     <div id="near-grid"><div class="near-empty">Cargando datos...</div></div>
+  </div>
+
+  <!-- ══ SIGNALS ══ -->
+  <div class="signals-section">
+    <div class="section-header">
+      <span class="section-title">⚡ Señales del día</span>
+      <span class="section-badge badge-fire" id="signals-tab-badge">Cripto</span>
+    </div>
+    <div class="signals-grid" id="signals-grid">
+      <div class="near-empty">Cargando señales...</div>
+    </div>
   </div>
 
   <!-- ══ FULL TABLE ══ -->
@@ -1668,6 +1779,84 @@ function renderTable(data) {
 
 function filterRows() { renderTable(allData); }
 
+// ── Stats band ──
+function renderStats() {
+  const items = allData.filter(d => !isStable(d));
+  const hot        = items.filter(d => d.pct >= (100 - threshold)).length;
+  const atATH      = items.filter(d => d.pct >= 99.5).length;
+  const approaching = items.filter(d => d.change24h != null && d.change24h > 2).length;
+  const falling     = items.filter(d => d.change24h != null && d.change24h < -2).length;
+
+  const el = (id, val) => { const e = document.getElementById(id); if(e) e.textContent = val; };
+  el('stat-hot',         hot);
+  el('stat-ath',         atATH);
+  el('stat-approaching', approaching);
+  el('stat-falling',     falling);
+}
+
+// ── Signals ──
+function renderSignals() {
+  const grid = document.getElementById('signals-grid');
+  const badge = document.getElementById('signals-tab-badge');
+  if (!grid) return;
+  if (badge) badge.textContent = currentTab === 'crypto' ? 'Cripto' : 'Acciones';
+
+  const items = allData.filter(d => !isStable(d));
+  const signals = [];
+
+  // ATH breakers
+  items.filter(d => d.pct >= 99.5).slice(0, 2).forEach(d => {
+    signals.push({ type:'break', icon:'🏆', name: d.name, sym: d.symbol,
+      desc: 'Ha alcanzado su máximo histórico', val: '≈ ATH', valColor:'var(--fire3)' });
+  });
+
+  // Most approaching (24h change > 0, sorted by change)
+  [...items]
+    .filter(d => d.change24h != null && d.change24h > 0 && d.pct < 99.5)
+    .sort((a,b) => b.change24h - a.change24h)
+    .slice(0, 3).forEach(d => {
+      signals.push({ type:'up', icon:'🚀', name: d.name, sym: d.symbol,
+        desc: `Se acerca al ATH · ${d.pct.toFixed(1)}% del máximo`,
+        val: '+' + d.change24h.toFixed(2) + '%', valColor:'#00e5a0' });
+    });
+
+  // Hottest non-ATH (closest to ATH without being at it)
+  [...items]
+    .filter(d => d.pct >= 90 && d.pct < 99.5)
+    .sort((a,b) => b.pct - a.pct)
+    .slice(0, 2).forEach(d => {
+      signals.push({ type:'hot', icon:'🔥', name: d.name, sym: d.symbol,
+        desc: `A solo ${(100 - d.pct).toFixed(1)}% del máximo histórico`,
+        val: d.pct.toFixed(1) + '%', valColor:'var(--fire2)' });
+    });
+
+  // Most falling
+  [...items]
+    .filter(d => d.change24h != null && d.change24h < -3)
+    .sort((a,b) => a.change24h - b.change24h)
+    .slice(0, 2).forEach(d => {
+      signals.push({ type:'down', icon:'📉', name: d.name, sym: d.symbol,
+        desc: `Cayendo · ${d.pct.toFixed(1)}% del ATH`,
+        val: d.change24h.toFixed(2) + '%', valColor:'var(--red)' });
+    });
+
+  if (!signals.length) {
+    grid.innerHTML = '<div class="near-empty" style="grid-column:1/-1">No hay señales destacadas ahora mismo.</div>';
+    return;
+  }
+
+  grid.innerHTML = signals.map(s => `
+    <div class="signal-card sig-${s.type}">
+      <div class="signal-icon">${s.icon}</div>
+      <div class="signal-body">
+        <div class="signal-name">${s.name} <span style="color:var(--muted);font-weight:400">${s.sym}</span></div>
+        <div class="signal-desc">${s.desc}</div>
+      </div>
+      <div class="signal-val" style="color:${s.valColor}">${s.val}</div>
+    </div>
+  `).join('');
+}
+
 function sortBy(mode) {
   sortMode = mode;
   document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
@@ -1704,6 +1893,8 @@ async function loadCrypto() {
     renderNearATH();
     renderSectorFilters();
     renderTable(allData);
+    renderStats();
+    renderSignals();
     const t = new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
     setStatus('live', `En vivo · ${t} · CoinGecko`);
   } catch(e) {
@@ -1759,6 +1950,8 @@ async function loadStocks() {
   renderNearATH();
   renderSectorFilters();
   renderTable(allData);
+  renderStats();
+  renderSignals();
   const t = new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
   setStatus('live', `Actualizado · ${t} · Precios estimados`);
 }
