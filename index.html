@@ -4,6 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ATH Radar — ¿A cuánto del máximo?</title>
+<meta name="description" content="Detecta qué criptomonedas y acciones están a punto de romper sus máximos históricos. 250 criptos + 50 acciones US en tiempo real.">
+<meta property="og:title" content="ATH Radar — ¿A cuánto del máximo?">
+<meta property="og:description" content="Detecta qué criptomonedas y acciones están a punto de romper sus máximos históricos. 250 criptos + 50 acciones US en tiempo real.">
+<meta property="og:url" content="https://athradar.com">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://athradar.com/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@athradar">
+<meta name="twitter:title" content="ATH Radar — ¿A cuánto del máximo?">
+<meta name="twitter:description" content="Detecta qué criptomonedas y acciones están a punto de romper sus máximos históricos. 250 criptos + 50 acciones US en tiempo real.">
+<meta name="twitter:image" content="https://athradar.com/og-image.png">
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Unbounded:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -2070,17 +2081,20 @@ function renderHeatmap() {
   window._vizData = sorted;
 
   const cells = sorted.map((d, i) => {
-    const capRatio = d.marketCap > 0 ? Math.pow(d.marketCap / maxCap, 0.38) : 0.08;
-    const size = Math.max(34, Math.round(30 + capRatio * 130));
+    const capRatio = d.marketCap > 0 ? Math.pow(d.marketCap / maxCap, 0.42) : 0.05;
+    const size = Math.max(44, Math.round(38 + capRatio * 140));
     const pct  = Math.min(100, d.pct);
     const bg   = vizColor(pct);
-    const fs   = Math.max(7, Math.round(size / 5.5));
-    const fsp  = Math.max(6, Math.round(size / 7));
+    const fs   = Math.max(8, Math.round(size / 5.2));
+    const fsp  = Math.max(7, Math.round(size / 6.5));
+    const showLabel = size >= 44;
+    const showPct   = size >= 56;
     return '<div class="hm-cell" style="width:' + size + 'px;height:' + size + 'px;background:' + bg + ';"'
+      + ' title="' + d.name + ' · ' + pct.toFixed(1) + '% del ATH"'
       + ' onmouseenter="showVizTooltip(event, window._vizData[' + i + '])"'
       + ' onmouseleave="hideVizTooltip()">'
-      + '<div class="hm-sym" style="font-size:' + fs + 'px">' + d.symbol + '</div>'
-      + '<div class="hm-pct" style="font-size:' + fsp + 'px">' + pct.toFixed(0) + '%</div>'
+      + (showLabel ? '<div class="hm-sym" style="font-size:' + fs + 'px">' + d.symbol + '</div>' : '')
+      + (showPct   ? '<div class="hm-pct" style="font-size:' + fsp + 'px">' + pct.toFixed(0) + '%</div>' : '')
       + '</div>';
   }).join('');
 
@@ -2098,8 +2112,7 @@ function renderHeatmap() {
 }
 
 
-function showVizTooltip() {}
-function hideVizTooltip() { hideVizTooltip(); }
+
 
 function closeWelcome() {
   const el = document.getElementById('welcome-overlay');
